@@ -52,7 +52,7 @@ type serverConfig struct {
 	LogDir      string
 	APIPrefix   string
 	Port        int
-	TokenMaxAge int8
+	TokenMaxAge int
 	LogFile     string
 }
 
@@ -60,7 +60,7 @@ type serverConfig struct {
 var ServerConfig serverConfig
 
 func initServerConfig() {
-	utils.SetStructByJSON(&TestCinfig, jsonData["go"].(map[string]interface{}))
+	utils.SetStructByJSON(&ServerConfig, jsonData["go"].(map[string]interface{}))
 	sep := string(os.PathSeparator)
 	execPath, _ := os.Getwd()
 	length := utf8.RuneCountInString(execPath)
