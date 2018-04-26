@@ -1,0 +1,12 @@
+{
+    "elasticsearch":{
+        "Host":"localhost",
+        "Port":9200
+    },
+    "go": {
+        "LogDir":"c:\\logs\\",
+        "APIPrefix":"/v1/api",
+        "Port":6666,
+        "TokenMaxAge":7200
+	}
+}
