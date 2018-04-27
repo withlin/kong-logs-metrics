@@ -18,7 +18,7 @@ type latencies struct {
 }
 
 // Hello 测试
-func Hello(c *gin.Context) {
+func AggSomething(c *gin.Context) {
 	// fmt.Println("\"message\":\"test\"")
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
@@ -26,9 +26,26 @@ func Hello(c *gin.Context) {
 	}
 	defer client.Stop()
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-	sou, err := query.Source()
+	// sou, err := query.Source()
 	ctx := context.Background()
-	test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Pretty(true).Do(ctx)
+	avgAgg := elastic.NewAvgAggregation().Field("latencies.proxy")
+	dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1)
+	maxAgg := elastic.NewMaxAggregation().Field("latencies.proxy")
+	minAgg := elastic.NewMinAggregation().Field("latencies.proxy")
+	test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Aggregation("DataAggs", dataAgg).Aggregation("Avg-Proxy", avgAgg).Aggregation("Max-Agg", maxAgg).Aggregation("Min-Agg", minAgg).Do(ctx)
+
+	xxx := test.Aggregations["Max-Agg"]
+	var ar elastic.AggregationBucketKeyItems
+	erraa := json.Unmarshal(*xxx, &ar)
+	if erraa != nil {
+		fmt.Printf("Unmarshal failed: %v\n", erraa)
+		return
+	}
+
+	for _, item := range ar.Buckets {
+		fmt.Printf("%v: %v\n", item.Key, item.DocCount)
+	}
+	// test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Pretty(true).Do(ctx)
 
 	for _, hit := range test.Hits.Hits {
 		// hit.Index contains the name of the index
@@ -42,8 +59,14 @@ func Hello(c *gin.Context) {
 
 		// Work with tweet
 		// fmt.Print(string(*hit.Source))
-		str := string(*hit.Source)
-		c.JSON(200, str)
+
+		// if agg, found := test.Aggregations.Min("Min-Agg"); found {
+		// 	for _, bucket := range agg.Min("") {
+		// 		fmt.Println("key:", bucket.Key, ", count:", bucket.DocCount)
+		// 	}
+		// }
+		// str := string()
+		c.JSON(200, "")
 	}
 
 	if test != nil {
@@ -78,7 +101,8 @@ func Hello(c *gin.Context) {
 	// if query != nil {
 	// 	fmt.Println(query)
 	// }
-	data, err := json.Marshal(sou)
+
+	data, err := json.Marshal(test)
 	if err != nil {
 		panic(err)
 	}

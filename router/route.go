@@ -2,7 +2,7 @@ package router
 
 import (
 	"kong-logs-metrics/config"
-	"kong-logs-metrics/controller/test"
+	"kong-logs-metrics/controller/elastic"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,6 +13,6 @@ func Route(router *gin.Engine) {
 
 	api := router.Group(apiPrefix)
 	{
-		api.GET("/test", test.Hello)
+		api.GET("/test", test.AggSomething)
 	}
 }
