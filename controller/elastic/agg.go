@@ -25,7 +25,7 @@ func AggSomething(c *gin.Context) {
 		panic(err)
 	}
 	defer client.Stop()
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+	query := elastic.NewBoolQuery().Must(elastic.1()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 	// sou, err := query.Source()
 	ctx := context.Background()
 	avgAgg := elastic.NewAvgAggregation().Field("latencies.proxy")
@@ -45,7 +45,7 @@ func AggSomething(c *gin.Context) {
 	for _, item := range ar.Buckets {
 		fmt.Printf("%v: %v\n", item.Key, item.DocCount)
 	}
-	// test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Pretty(true).Do(ctx)
+
 
 	for _, hit := range test.Hits.Hits {
 		// hit.Index contains the name of the index
@@ -56,30 +56,15 @@ func AggSomething(c *gin.Context) {
 		if err != nil {
 			// Deserialization failed
 		}
-
-		// Work with tweet
-		// fmt.Print(string(*hit.Source))
-
-		// if agg, found := test.Aggregations.Min("Min-Agg"); found {
-		// 	for _, bucket := range agg.Min("") {
-		// 		fmt.Println("key:", bucket.Key, ", count:", bucket.DocCount)
-		// 	}
-		// }
-		// str := string()
 		c.JSON(200, "")
 	}
 
 	if test != nil {
 		var lat latencies
-		// for _;item :=  test.Each(reflect.TypeOf(lat)) {
-		// 	if t, ok := item.(latencies); ok {
-		// 		fmt.Printf("latencies by %s: %s\n", t.Request, t.Proxy)
-		// 	}
-		// }
+
 		for _, item := range test.Each(reflect.TypeOf(lat)) {
-			// if t, ok := item.(latencies); ok {
-			// 	fmt.Printf("latencies by %s: %s\n", t.Proxy, t.Kong)
-			// }
+
+
 			result, ok := item.(latencies)
 			if ok {
 				fmt.Printf("latencies by %s: %s\n", result.Proxy, result.Kong)
@@ -98,10 +83,7 @@ func AggSomething(c *gin.Context) {
 		panic(err) 
 	}
 
-	// if query != nil {
-	// 	fmt.Println(query)
-	// }
-
+	
 	data, err := json.Marshal(test)
 	if err != nil {
 		panic(err)
