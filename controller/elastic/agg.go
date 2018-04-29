@@ -4,52 +4,20 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
-	"time"
+	"reflect"
 
 	"github.com/gin-gonic/gin"
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-// AggMetrics 日志聚合
-type AggMetrics struct {
-	Took     int    `json:"took"`
-	ScrollID string `json:"_scroll_id"`
-	Hits     struct {
-		Total    int           `json:"total"`
-		MaxScore int           `json:"max_score"`
-		Hits     []interface{} `json:"hits"`
-	} `json:"hits"`
-	Suggest      interface{} `json:"suggest"`
-	Aggregations struct {
-		DataAggs struct {
-			Buckets []struct {
-				KeyAsString time.Time `json:"key_as_string"`
-				Key         int64     `json:"key"`
-				DocCount    int       `json:"doc_count"`
-				MaxAgg      struct {
-					Value float64 `json:"value"`
-				} `json:"maxAgg"`
-				MinAgg struct {
-					Value float64 `json:"value"`
-				} `json:"minAgg"`
-				AvgAgg struct {
-					Value float64 `json:"value"`
-				} `json:"avgAgg"`
-			} `json:"buckets"`
-		} `json:"DataAggs"`
-	} `json:"aggregations"`
-	TimedOut bool `json:"timed_out"`
-	Shards   struct {
-		Total      int `json:"total"`
-		Successful int `json:"successful"`
-		Failed     int `json:"failed"`
-	} `json:"_shards"`
+// latencies 延迟
+type latencies struct {
+	Request int `json:"request"`
+	Proxy   int `json:"proxy"`
+	Kong    int `json:"kong"`
 }
 
-var test AggMetrics
-
-// AggSomething
+// Hello 测试
 func AggSomething(c *gin.Context) {
 	// fmt.Println("\"message\":\"test\"")
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
@@ -61,35 +29,85 @@ func AggSomething(c *gin.Context) {
 	// sou, err := query.Source()
 	ctx := context.Background()
 	avgAgg := elastic.NewAvgAggregation().Field("latencies.proxy")
+	dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1)
 	maxAgg := elastic.NewMaxAggregation().Field("latencies.proxy")
 	minAgg := elastic.NewMinAggregation().Field("latencies.proxy")
-	dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
+	test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Aggregation("DataAggs", dataAgg).Aggregation("Avg-Proxy", avgAgg).Aggregation("Max-Agg", maxAgg).Aggregation("Min-Agg", minAgg).Do(ctx)
 
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+	xxx := test.Aggregations["Max-Agg"]
+	var ar elastic.AggregationBucketKeyItems
+	erraa := json.Unmarshal(*xxx, &ar)
+	if erraa != nil {
+		fmt.Printf("Unmarshal failed: %v\n", erraa)
+		return
+	}
+
+	for _, item := range ar.Buckets {
+		fmt.Printf("%v: %v\n", item.Key, item.DocCount)
+	}
+	// test, err1 := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(1).Pretty(true).Do(ctx)
+
+	for _, hit := range test.Hits.Hits {
+		// hit.Index contains the name of the index
+
+		// Deserialize hit.Source into a Tweet (could also be just a map[string]interface{}).
+		var lat latencies
+		err := json.Unmarshal(*hit.Source, &lat)
+		if err != nil {
+			// Deserialization failed
+		}
+
+		// Work with tweet
+		// fmt.Print(string(*hit.Source))
+
+		// if agg, found := test.Aggregations.Min("Min-Agg"); found {
+		// 	for _, bucket := range agg.Min("") {
+		// 		fmt.Println("key:", bucket.Key, ", count:", bucket.DocCount)
+		// 	}
+		// }
+		// str := string()
+		c.JSON(200, "")
+	}
+
+	if test != nil {
+		var lat latencies
+		// for _;item :=  test.Each(reflect.TypeOf(lat)) {
+		// 	if t, ok := item.(latencies); ok {
+		// 		fmt.Printf("latencies by %s: %s\n", t.Request, t.Proxy)
+		// 	}
+		// }
+		for _, item := range test.Each(reflect.TypeOf(lat)) {
+			// if t, ok := item.(latencies); ok {
+			// 	fmt.Printf("latencies by %s: %s\n", t.Proxy, t.Kong)
+			// }
+			result, ok := item.(latencies)
+			if ok {
+				fmt.Printf("latencies by %s: %s\n", result.Proxy, result.Kong)
+			} else {
+
+				fmt.Errorf("错误啦啊啊啊 ")
+			}
+		}
+
+		fmt.Println("tets========= %s \n=====", test.TotalHits())
+	} else {
+		fmt.Print(err1)
+	}
 
 	if err != nil {
+		panic(err) 
+	}
 
-	}
-	if searchResult.TotalHits() != 1 {
-		fmt.Errorf("expected Hits.TotalHits = %d; got: %d", 1, searchResult.TotalHits())
-	}
-	if _, found := searchResult.Aggregations["DataAggs"]; !found {
-		fmt.Println("expected aggregation %q", "dhagg")
-	}
-	buf, err := json.Marshal(searchResult)
-	a := json.Unmarshal(buf, &test)
-	if a != nil {
+	// if query != nil {
+	// 	fmt.Println(query)
+	// }
 
-	}
-	fmt.Println("=========================%d\n============", test.Took)
+	data, err := json.Marshal(test)
 	if err != nil {
-		fmt.Println(err)
+		panic(err)
 	}
-	s := string(buf)
+	s := string(data)
+
 	fmt.Println(s)
-	if i := strings.Index(s, `{"dhagg":{"buckets":[{"key_as_string":"2012-01-01`); i < 0 {
-		fmt.Errorf("expected to serialize aggregation into string; got: %v", s)
-	}
-	c.JSON(200, searchResult)
 
 }
