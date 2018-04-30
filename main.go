@@ -13,7 +13,7 @@ import (
 
 func main() {
 	// config.InitJSON()
-	config.InitAll()
+	config.InitAll()        
 	// config.InitElasticSearchConfig()
 	fmt.Print(config.TestCinfig.URL)
 	fmt.Print(config.ServerConfig.APIPrefix)
