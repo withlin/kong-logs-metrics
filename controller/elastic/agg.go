@@ -3,8 +3,8 @@ package test
 import (
 	"context"
 	"encoding/json"
-	"fmt"
-	"strings"
+	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -23,20 +23,7 @@ type AggMetrics struct {
 	Suggest      interface{} `json:"suggest"`
 	Aggregations struct {
 		DataAggs struct {
-			Buckets []struct {
-				KeyAsString time.Time `json:"key_as_string"`
-				Key         int64     `json:"key"`
-				DocCount    int       `json:"doc_count"`
-				MaxAgg      struct {
-					Value float64 `json:"value"`
-				} `json:"maxAgg"`
-				MinAgg struct {
-					Value float64 `json:"value"`
-				} `json:"minAgg"`
-				AvgAgg struct {
-					Value float64 `json:"value"`
-				} `json:"avgAgg"`
-			} `json:"buckets"`
+			Buckets []Bucket `json:"buckets"`
 		} `json:"DataAggs"`
 	} `json:"aggregations"`
 	TimedOut bool `json:"timed_out"`
@@ -47,11 +34,34 @@ type AggMetrics struct {
 	} `json:"_shards"`
 }
 
-var test AggMetrics
+var aggMetrics AggMetrics
 
-// AggSomething
-func AggSomething(c *gin.Context) {
-	// fmt.Println("\"message\":\"test\"")
+//Bucket 把它抽象出来
+type Bucket struct {
+	KeyAsString time.Time `json:"key_as_string"`
+	Key         int64     `json:"key"`
+	DocCount    int       `json:"doc_count"`
+	MaxAgg      struct {
+		Value float64 `json:"value"`
+	} `json:"maxAgg"`
+	MinAgg struct {
+		Value float64 `json:"value"`
+	} `json:"minAgg"`
+	AvgAgg struct {
+		Value float64 `json:"value"`
+	} `json:"avgAgg"`
+}
+
+//AggResult 聚合的结果
+type AggResult struct {
+	Min [24]float64 `json:"min" binding:"required"`
+	Max [24]float64 `json:"max" binding:"required"`
+	Avg [24]float64 `json:"avg" binding:"required"`
+}
+
+// AggMetricsController kong日志聚合统计Api
+func AggMetricsController(c *gin.Context) {
+
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -68,28 +78,56 @@ func AggSomething(c *gin.Context) {
 	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
 
 	if err != nil {
-
-	}
-	if searchResult.TotalHits() != 1 {
-		fmt.Errorf("expected Hits.TotalHits = %d; got: %d", 1, searchResult.TotalHits())
-	}
-	if _, found := searchResult.Aggregations["DataAggs"]; !found {
-		fmt.Println("expected aggregation %q", "dhagg")
+		//doSomething
 	}
 	buf, err := json.Marshal(searchResult)
-	a := json.Unmarshal(buf, &test)
-	if a != nil {
+	if err != nil {
+		//doSomthing
+	}
+	errCode := json.Unmarshal(buf, &aggMetrics)
+
+	if errCode != nil {
+		//doSometing
+	}
+
+	aggResult := aggMetrics.Aggregations.DataAggs.Buckets
+
+	result, err := ConvertMap(aggResult)
+
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
+	}
+
+	// c.JSON(200, bbb)
+	c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
+
+}
+
+// ConvertMap 赋值操作
+func ConvertMap(arr []Bucket) (AggResult, error) {
+
+	var min [24]float64
+	var max [24]float64
+	var avg [24]float64
+	var result AggResult
+	for _, elem := range arr {
+		location, err := time.LoadLocation("Asia/Shanghai")
+		if err != nil {
+			return result, err
+		}
+		localResult := elem.KeyAsString.In(location)
+		tim, err := strconv.Atoi(localResult.Format("15"))
+		if err != nil {
+			return result, err
+		}
+		min[tim] = elem.MinAgg.Value
+		max[tim] = elem.MaxAgg.Value
+		avg[tim] = elem.AvgAgg.Value
 
 	}
-	fmt.Println("=========================%d\n============", test.Took)
-	if err != nil {
-		fmt.Println(err)
-	}
-	s := string(buf)
-	fmt.Println(s)
-	if i := strings.Index(s, `{"dhagg":{"buckets":[{"key_as_string":"2012-01-01`); i < 0 {
-		fmt.Errorf("expected to serialize aggregation into string; got: %v", s)
-	}
-	c.JSON(200, searchResult)
+	result.Avg = avg
+	result.Min = min
+	result.Max = max
+	return result, nil
 
 }

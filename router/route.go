@@ -13,6 +13,6 @@ func Route(router *gin.Engine) {
 
 	api := router.Group(apiPrefix)
 	{
-		api.GET("/test", test.AggSomething)
+		api.GET("/test", test.AggMetricsController)
 	}
 }
