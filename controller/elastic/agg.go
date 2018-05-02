@@ -11,7 +11,7 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-// AggMetrics 日志聚合
+// AggMetrics 日志聚合对象
 type AggMetrics struct {
 	Took     int    `json:"took"`
 	ScrollID string `json:"_scroll_id"`
@@ -36,7 +36,7 @@ type AggMetrics struct {
 
 var aggMetrics AggMetrics
 
-//Bucket 把它抽象出来
+//Bucket Bucket 对象
 type Bucket struct {
 	KeyAsString time.Time `json:"key_as_string"`
 	Key         int64     `json:"key"`
@@ -59,8 +59,8 @@ type AggResult struct {
 	Avg [24]float64 `json:"avg" binding:"required"`
 }
 
-// AggMetricsController kong日志聚合统计Api
-func AggMetricsController(c *gin.Context) {
+// FindAggMetrics kong日志聚合统计Api
+func FindAggMetrics(c *gin.Context) {
 
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
