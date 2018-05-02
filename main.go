@@ -8,12 +8,13 @@ import (
 
 	"kong-logs-metrics/router"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
 	// config.InitJSON()
-	config.InitAll()        
+	config.InitAll()
 	// config.InitElasticSearchConfig()
 	fmt.Print(config.TestCinfig.URL)
 	fmt.Print(config.ServerConfig.APIPrefix)
@@ -45,8 +46,13 @@ func main() {
 
 	// Recovery middleware recovers from any panics and writes a 500 if there was one.
 	app.Use(gin.Recovery())
+	//跨域请求
+	// configCors := cors.DefaultConfig()
+	// configCors.AllowOrigins = []string{"localhost"}
+	// config.AllowOrigins == []string{"http://google.com", "http://facebook.com"}
 
+	app.Use(cors.Default())
 	router.Route(app)
-	// app.Run(":8888")
+
 	app.Run(":" + fmt.Sprintf("%d", config.ServerConfig.Port))
 }

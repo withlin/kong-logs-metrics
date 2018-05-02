@@ -65,29 +65,29 @@ export default {
                     
                     this.$store.commit('setAvator', 'https://avatars1.githubusercontent.com/u/22409551?s=400&u=bafa72dbbfd895c17aa4bbbfeff2d2de164db146&v=4');
                     
-                    let data={'USERID':this.form.userName,'PASSWORD':this.form.password};
+                    let data={'username':this.form.userName,'password':this.form.password};
 
                     
                     let server=Api.CheckLogin;
 
                      this.$router.push('/home');
-                    // Axios.post(server,data).then((res)=>{
-                    //     console.log(res.data);
+                    Axios.post(server,data).then((res)=>{
+                        console.log(res.data);
                         
-                    //     if(res.data){
-                    //         Cookies.set('user', this.form.userName);
-                    //         Cookies.set('password', this.form.password);
-                    //         this.$Message.success('登录成功');
-                    //         this.$router.push('/home');
-                    //     }else{
-                    //         this.$Message.error('登录失败，账户或者密码错误!');
-                    //         this.$router.push('/login');
-                    //     }
-                    // }).catch((err)=>{
-                    //     this.$Message.error(err.message);
-                    //     console.log(err);
-                    //      this.$router.push('/home');
-                    // });
+                        if(res.data.message=="ok"){
+                            Cookies.set('user', this.form.userName);
+                            Cookies.set('password', this.form.password);
+                            this.$Message.success('登录成功');
+                            this.$router.push('/home');
+                        }else{
+                            this.$Message.error('登录失败，账户或者密码错误!');
+                            this.$router.push('/login');
+                        }
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                         this.$router.push('/home');
+                    });
 
                     // if (this.form.userName === 'iview_admin') {
                     //     Cookies.set('access', 0);

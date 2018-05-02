@@ -77,14 +77,14 @@ export const appRouter = [
         path: '/component',
         icon: 'social-buffer',
         name: 'component',
-        title: '机构管理',
+        title: '网关性能统计',
         component: Main,
         children: [
             {
                 path: 'text-editor',
                 icon: 'compose',
                 name: 'text-editor',
-                title: '机构管理',
+                title: '性能统计',
                 component: () => import('@/views/tables/editable-table.vue')
             }
             ,
@@ -92,43 +92,9 @@ export const appRouter = [
                 path: 'md-editor',
                 icon: 'pound',
                 name: 'md-editor',
-                title: 'Markdown编辑器',
+                title: '日志查询',
                 component: () => import('@/views/my-components/markdown-editor/markdown-editor.vue')
             }
-        ]
-    },
-    {
-        path: '/tables',
-        icon: 'ios-grid-view',
-        name: 'tables',
-        title: '角色管理',
-        component: Main,
-        children: [
-            { path: 'dragableTable', title: '角色管理', name: 'dragable-table', icon: 'arrow-move', component: () => import('@/views/tables/dragable-table.vue') },
-            { path: 'editableTable', title: '角色管理', name: 'editable-table', icon: 'edit', component: () => import('@/views/tables/editable-table.vue') }
-        ]
-    },
-    {
-        path: '/form',
-        icon: 'android-checkbox',
-        name: 'form',
-        title: '人员管理',
-        component: Main,
-        children: [
-            { path: 'artical-publish', title: '人员管理', name: 'artical-publish', icon: 'compose', component: () => import('@/views/form/article-publish/article-publish.vue') },
-            { path: 'workflow', title: '人员管理', name: 'workflow', icon: 'arrow-swap', component: () => import('@/views/form/work-flow/work-flow.vue') }
-
-        ]
-    },
-    {
-        path: '/tables',
-        icon: 'ios-grid-view',
-        name: 'tables',
-        title: '菜单管理',
-        component: Main,
-        children: [
-            { path: 'dragableTable', title: '菜单管理', name: 'dragable-table', icon: 'arrow-move', component: () => import('@/views/tables/dragable-table.vue') },
-            { path: 'editableTable', title: '菜单功能管理', name: 'editable-table', icon: 'edit', component: () => import('@/views/tables/editable-table.vue') }
         ]
     }
 
