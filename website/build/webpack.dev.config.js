@@ -14,6 +14,16 @@ fs.open('./build/env.js', 'w', function(err, fd) {
 
 module.exports = merge(webpackBaseConfig, {
     devtool: '#source-map',
+    devServer: {
+        port: 8080,
+        proxy: {
+          '/api': {
+            // target: 'http://yuanhang.youledi.cn/',
+            pathRewrite: {'^/api' : ''},
+            changeOrigin: true
+          }
+        }
+    },
     output: {
         publicPath: '/dist/',
         filename: '[name].js',

@@ -3,6 +3,7 @@ package agg
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -59,7 +60,7 @@ type AggResult struct {
 	Avg [24]float64 `json:"avg" binding:"required"`
 }
 
-// FindAggMetrics kong日志聚合统计Api
+// FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
 func FindAggMetrics(c *gin.Context) {
 
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
@@ -129,5 +130,46 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 	result.Min = min
 	result.Max = max
 	return result, nil
+
+}
+
+func pieChar(c *gin.Context) {
+
+	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+	if err != nil {
+		panic(err)
+	}
+	defer client.Stop()
+
+	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+
+	r1 := 30
+	r2 := 90
+	r3 := 120
+	r4 := 150
+	r5 := 180
+	r6 := 210
+	r7 := 240
+	r8 := 270
+	r9 := 300
+	r10 := 500
+	ctx := context.Background()
+	rangeAgg := elastic.NewRangeAggregation().Field("latencies.kong").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
+	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.kong").Size(2000).Sort("started_at", false)
+
+	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Aggregation("rangeAgg", rangeAgg).Aggregation("tophitAgg", tophitAgg).Do(ctx)
+
+	if err != nil {
+		//do something
+	}
+
+	buf, err := json.Marshal(searchResult)
+	if err != nil {
+		//doSomthing
+	}
+	errCode := json.Unmarshal(buf, &aggMetrics)
+
+	fmt.Println(errCode)
+	c.JSON(http.StatusOK, gin.H{"message": "false", "data": "aaa"})
 
 }
