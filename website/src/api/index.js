@@ -10,7 +10,8 @@ let serverAddress='http://localhost:7777/v1/api';
 //登录接口
 const Login={
     //检查检查用户是否登录
-    CheckLogin:serverAddress+'/checklogin'
+    CheckLogin:serverAddress+'/checklogin',
+    MixedLineAndBar:serverAddress+'/test'
     
 
 }

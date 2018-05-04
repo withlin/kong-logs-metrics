@@ -1,178 +1,124 @@
-<style lang="less">
-    @import '../../styles/common.less';
-    @import './components/table.less';
-</style>
-
 <template>
-<div>
-        <Row>
-
-        <Col span="5" class="padding-left-20">
-
-        <Card>
-        <p slot="title">
-                        <Icon type="load-b"></Icon>
-                        简单说明
-                    </p>
-                    <div class="edittable-test-con">
-                        可编辑单元格可配置可编辑的列，可设置编辑整行的可编辑单元格，也可配置单个编辑可编辑单元格，也可两种形式同时可用。可配置单元格内编辑的图标显示方式。
-                    </div>
-        <!--<i-col><p style="height: 1000px">col-4</p></i-col>-->
-        </Card>
-
-        </Col>
-
-        <Col span="18"  class="padding-left-20">
-        <Card>
-        <p slot="title">
-                        <Icon type="android-remove"></Icon>
-                        可编辑单元行
-                    </p>
-                    <div class="edittable-table-height-con">
-                        <can-edit-table refs="table2" v-model="editInlineData" :columns-list="editInlineColumns"></can-edit-table>
-                    </div>
-        <!--<i-col><p style="height: 1000px">col-4</p></i-col>-->
-        
-        </Card>
-        </Col>
-        </Row>
-
-     </div>
-    <!--<div>
-        <Row>
-            <Col span="6">
-                <Card>
-                    <p slot="title">
-                        <Icon type="load-b"></Icon>
-                        简单说明
-                    </p>
-                    <div class="edittable-test-con">
-                        可编辑单元格可配置可编辑的列，可设置编辑整行的可编辑单元格，也可配置单个编辑可编辑单元格，也可两种形式同时可用。可配置单元格内编辑的图标显示方式。
-                    </div>
-                </Card>
-            </Col>
-            <Col span="18" class="padding-left-10">
-                <Card>
-                    <div class="edittable-con-1">
-                        <can-edit-table refs="table1" @on-delete="handleDel" v-model="tableData" :columns-list="columnsList"></can-edit-table>
-                    </div>
-                </Card>
-            </Col>
-        </Row>
-        <Row class="margin-top-10">
-            <Col span="12">
-                <Card>
-                    <p slot="title">
-                        <Icon type="android-remove"></Icon>
-                        可编辑单元行
-                    </p>
-                    <div class="edittable-table-height-con">
-                        <can-edit-table refs="table2" v-model="editInlineData" :columns-list="editInlineColumns"></can-edit-table>
-                    </div>
-                </Card>
-            </Col>
-            <Col span="12" class="padding-left-10">
-                <Card>
-                    <p slot="title">
-                        <Icon type="android-more-horizontal"></Icon>
-                        可编辑单元格(鼠标移入显示编辑单元格按钮)
-                    </p>
-                    <div class="edittable-table-height-con">
-                        <can-edit-table refs="table3" v-model="editIncellData" :hover-show="true" :edit-incell="true" :columns-list="editIncellColumns"></can-edit-table>
-                    </div>
-                </Card>
-            </Col>
-        </Row>
-        <Row class="margin-top-10">
-            <Col span="24">
-                <Card>
-                    <p slot="title">
-                        <Icon type="ios-keypad"></Icon>
-                         单元行和单元格两种方式编辑(始终显示编辑单元格按钮)
-                    </p>
-                    <Row :gutter="10">
-                        <Col span="2">
-                            <Row type="flex" justify="center" align="middle" class="edittable-table-get-currentdata-con">
-                                <Button type="primary" @click="getCurrentData">当前数据</Button>
-                            </Row>
-                        </Col>
-                        <Col span="22">
-                            <div class="edittable-table-height-con">
-                                <can-edit-table 
-                                    refs="table4" 
-                                    v-model="editInlineAndCellData" 
-                                    @on-cell-change="handleCellChange" 
-                                    @on-change="handleChange"  
-                                    :editIncell="true" 
-                                    :columns-list="editInlineAndCellColumn"
-                                ></can-edit-table>
-                            </div>
-                        </Col>
-                        <Modal :width="900" v-model="showCurrentTableData">
-                            <can-edit-table refs="table5" v-model="editInlineAndCellData" :columns-list="showCurrentColumns"></can-edit-table>
-                        </Modal>
-                    </Row>
-                </Card>
-            </Col>
-        </Row>
-    </div>-->
+    <div>
+         <Button @click="handleSubmit" type="primary" >显示图表</Button>
+        <div style="width:1000px;height:600px;" id="visite_volume_con"></div>
+    </div>
+    
+    
 </template>
 
 <script>
-import canEditTable from './components/canEditTable.vue';
-import tableData from './components/table_data.js';
+import echarts from 'echarts';
+import Axios from 'axios';
+import Api  from '@/api';
 export default {
-    name: 'editable-table',
-    components: {
-        canEditTable
-    },
+    name: 'visiteVolume',
     data () {
         return {
-            columnsList: [],
-            tableData: [],
-            editInlineColumns: [],
-            editInlineData: [],
-            editIncellColumns: [],
-            editIncellData: [],
-            editInlineAndCellColumn: [],
-            editInlineAndCellData: [],
-            showCurrentColumns: [],
-            showCurrentTableData: false
+            //
+            result:this.handleSubmit()
         };
     },
-    methods: {
-        getData () {
-            this.columnsList = tableData.table1Columns;
-            this.tableData = tableData.table1Data;
-            this.editInlineColumns = tableData.editInlineColumns;
-            this.editInlineData = tableData.editInlineData;
-            this.editIncellColumns = tableData.editIncellColumns;
-            this.editIncellData = tableData.editIncellData;
-            this.editInlineAndCellColumn = tableData.editInlineAndCellColumn;
-            this.editInlineAndCellData = tableData.editInlineAndCellData;
-            this.showCurrentColumns = tableData.showCurrentColumns;
-        },
-        handleNetConnect (state) {
-            this.breakConnect = state;
-        },
-        handleLowSpeed (state) {
-            this.lowNetSpeed = state;
-        },
-        getCurrentData () {
-            this.showCurrentTableData = true;
-        },
-        handleDel (val, index) {
-            this.$Message.success('删除了第' + (index + 1) + '行数据');
-        },
-        handleCellChange (val, index, key) {
-            this.$Message.success('修改了第 ' + (index + 1) + ' 行列名为 ' + key + ' 的数据');
-        },
-        handleChange (val, index) {
-            this.$Message.success('修改了第' + (index + 1) + '行数据');
+    mounted () {
+        this.$nextTick(() => {
+            let visiteVolume = echarts.init(document.getElementById('visite_volume_con'));
+
+            const option = {
+                tooltip: {
+        trigger: 'axis',
+        axisPointer: {
+            type: 'cross',
+            crossStyle: {
+                color: '#999'
+            }
         }
     },
-    created () {
-        this.getData();
+    toolbox: {
+        feature: {
+            dataView: {show: true, readOnly: false},
+            magicType: {show: true, type: ['line', 'bar']},
+            restore: {show: true},
+            saveAsImage: {show: true}
+        }
+    },
+    legend: {
+        data:['最小耗时','平均耗时','最大耗时']
+    },
+    xAxis: [
+        {
+            type: 'category',
+            data: ['0时','1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时'],
+            axisPointer: {
+                type: 'shadow'
+            }
+        }
+    ],
+    yAxis: [
+        {
+            type: 'value',
+            name: '最大耗时',
+            min: 0,
+            max: 250,
+            interval: 50,
+            axisLabel: {
+                formatter: '{value}'
+            }
+        },
+        {
+            type: 'value',
+            name: '最小耗时',
+            min: 0,
+            max: 25,
+            interval: 5,
+            axisLabel: {
+                formatter: '{value}'
+            }
+        }
+    ],
+    series: [
+        {
+            name:'最大耗时',
+            type:'bar',
+            data:this.result.max
+        },
+        {
+            name:'最小耗时',
+            type:'bar',
+            data:this.result.min
+        },
+        {
+            name:'平均耗时',
+            type:'line',
+            yAxisIndex: 1,
+            data:this.result.avg
+        }
+    ]
+            };
+
+            visiteVolume.setOption(option);
+
+            window.addEventListener('resize', function () {
+                visiteVolume.resize();
+            });
+        });
+    },
+    methods: {
+        handleSubmit () {
+
+                    let server=Api.MixedLineAndBar;
+
+                    Axios.get(server).then((res)=>{
+                        console.log(res.data);
+
+                        if(res.data.message=="ok"){
+                           return res.data.data;
+                        }
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
+                    
+        }
     }
 };
 </script>
