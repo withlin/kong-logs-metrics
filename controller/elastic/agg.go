@@ -173,3 +173,15 @@ func pieChar(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "false", "data": "aaa"})
 
 }
+
+
+func  queryUrlName(c *gin.Context){
+	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+	if err != nil {
+		panic(err)
+	}
+	defer client.Stop()
+
+	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+
+}

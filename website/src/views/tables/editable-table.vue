@@ -1,7 +1,23 @@
 <template>
     <div>
-         <Button @click="handleSubmit" type="primary" >显示图表</Button>
+        <div style="height:10px;"></div>
+        <Row>
+        <Col span="8">
+        <Button @click="handleSubmit" type="primary" >显示图表</Button>
+        <Select v-model="model1" style="width:200px">
+        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+        </Select>
+        
+        </Col>
+
+        <Col span="1" offset="1">
+        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
+        </DatePicker>
+        </Col>
+      </Row>
+         <div style="height:50px;"></div>
         <div style="width:1100px;height:700px;" id="visite_volume_con"></div>
+        <Table stripe :columns="columns1" :data="data1" style="width:1100px;"></Table>
     </div>
     
     
@@ -15,7 +31,7 @@ const option = {
                 tooltip: {
         trigger: 'axis',
         axisPointer: {
-            type: 'cross',
+            type: 'none',
             crossStyle: {
                 color: '#999'
             }
@@ -37,7 +53,7 @@ const option = {
             type: 'category',
             data: ['0时','1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时'],
             axisPointer: {
-                type: 'shadow'
+                type: 'none'
             }
         }
     ],
