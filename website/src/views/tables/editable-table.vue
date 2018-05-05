@@ -1,7 +1,7 @@
 <template>
     <div>
          <Button @click="handleSubmit" type="primary" >显示图表</Button>
-        <div style="width:1000px;height:600px;" id="visite_volume_con"></div>
+        <div style="width:1100px;height:700px;" id="visite_volume_con"></div>
     </div>
     
     
@@ -11,19 +11,7 @@
 import echarts from 'echarts';
 import Axios from 'axios';
 import Api  from '@/api';
-export default {
-    name: 'visiteVolume',
-    data () {
-        return {
-            //
-            result:this.handleSubmit()
-        };
-    },
-    mounted () {
-        this.$nextTick(() => {
-            let visiteVolume = echarts.init(document.getElementById('visite_volume_con'));
-
-            const option = {
+const option = {
                 tooltip: {
         trigger: 'axis',
         axisPointer: {
@@ -35,10 +23,10 @@ export default {
     },
     toolbox: {
         feature: {
-            dataView: {show: true, readOnly: false},
-            magicType: {show: true, type: ['line', 'bar']},
-            restore: {show: true},
-            saveAsImage: {show: true}
+            dataView: {show: false, readOnly: false},
+            magicType: {show: false, type: ['line', 'bar']},
+            restore: {show: false},
+            saveAsImage: {show: false}
         }
     },
     legend: {
@@ -58,8 +46,8 @@ export default {
             type: 'value',
             name: '最大耗时',
             min: 0,
-            max: 250,
-            interval: 50,
+            max: 50000,
+            interval: 5000,
             axisLabel: {
                 formatter: '{value}'
             }
@@ -68,8 +56,8 @@ export default {
             type: 'value',
             name: '最小耗时',
             min: 0,
-            max: 25,
-            interval: 5,
+            max: 2000,
+            interval: 200,
             axisLabel: {
                 formatter: '{value}'
             }
@@ -77,41 +65,76 @@ export default {
     ],
     series: [
         {
-            name:'最大耗时',
+            name:'最大耗时(ms)',
             type:'bar',
-            data:this.result.max
+            barWidth:35,
+            itemStyle:{normal:{color:'#ff9966'}},
+            data:[]
         },
         {
-            name:'最小耗时',
+            name:'最小耗时(ms)',
             type:'bar',
-            data:this.result.min
+            barWidth:40,
+            data:[]
         },
         {
-            name:'平均耗时',
+            name:'平均耗时(ms)',
             type:'line',
             yAxisIndex: 1,
-            data:this.result.avg
+            data:[]
         }
     ]
             };
-
-            visiteVolume.setOption(option);
-
-            window.addEventListener('resize', function () {
-                visiteVolume.resize();
-            });
+export default {
+    name: 'visiteVolume',
+    data () {
+        return {
+            //
+            // result:this.handleSubmit()
+        };
+    },
+    mounted () {
+        this.$nextTick(() => {
+            
         });
     },
     methods: {
         handleSubmit () {
+              let visiteVolume = echarts.init(document.getElementById('visite_volume_con'));
 
+            
+
+               visiteVolume.setOption(option);
+
+            //    window.addEventListener('resize', function () {
+            //      visiteVolume.resize();
+            //    });
                     let server=Api.MixedLineAndBar;
-
+                    
                     Axios.get(server).then((res)=>{
                         console.log(res.data);
+                        visiteVolume.hideLoading();
+                        visiteVolume.showLoading();
 
+                        
                         if(res.data.message=="ok"){
-                           return res.data.data;
+                            setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
+                           visiteVolume.hideLoading(); //隐藏加载动画
+                             
+                           visiteVolume.setOption({
+                                series: [{
+                                data: res.data.data.max
+                               },
+                               {
+                                data: res.data.data.min
+                               },
+                               {
+                                data: res.data.data.avg
+                               }
+                            ]
+                           });
+                             }, 1000 )
+
                         }
                     }).catch((err)=>{
                         this.$Message.error(err.message);

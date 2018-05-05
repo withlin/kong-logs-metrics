@@ -71,9 +71,9 @@ func FindAggMetrics(c *gin.Context) {
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 	// sou, err := query.Source()
 	ctx := context.Background()
-	avgAgg := elastic.NewAvgAggregation().Field("latencies.proxy")
-	maxAgg := elastic.NewMaxAggregation().Field("latencies.proxy")
-	minAgg := elastic.NewMinAggregation().Field("latencies.proxy")
+	avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
+	maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
+	minAgg := elastic.NewMinAggregation().Field("latencies.request")
 	dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
 	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
@@ -154,8 +154,8 @@ func pieChar(c *gin.Context) {
 	r9 := 300
 	r10 := 500
 	ctx := context.Background()
-	rangeAgg := elastic.NewRangeAggregation().Field("latencies.kong").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
-	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.kong").Size(2000).Sort("started_at", false)
+	rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
+	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Size(2000).Sort("started_at", false)
 
 	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Aggregation("rangeAgg", rangeAgg).Aggregation("tophitAgg", tophitAgg).Do(ctx)
 
