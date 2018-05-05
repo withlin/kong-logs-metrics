@@ -174,14 +174,69 @@ func pieChar(c *gin.Context) {
 
 }
 
+//URL 查询urlname
+type URL struct {
+	Took     int    `json:"took"`
+	ScrollID string `json:"_scroll_id"`
+	Hits     struct {
+		Total    int           `json:"total"`
+		MaxScore int           `json:"max_score"`
+		Hits     []interface{} `json:"hits"`
+	} `json:"hits"`
+	Suggest      interface{} `json:"suggest"`
+	Aggregations struct {
+		TermAgg struct {
+			DocCountErrorUpperBound int             `json:"doc_count_error_upper_bound"`
+			SumOtherDocCount        int             `json:"sum_other_doc_count"`
+			Buckets                 []ResultBuckets `json:"buckets"`
+		} `json:"termAgg"`
+	} `json:"aggregations"`
+	TimedOut bool `json:"timed_out"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+}
 
-func  queryUrlName(c *gin.Context){
+//ResultBuckets bucketResult
+type ResultBuckets struct {
+	Key string `json:"key"`
+	// DocCount int    `json:"doc_count"`
+}
+
+var url URL
+
+//QueryURLName 查询请求的API名称
+func QueryURLName(c *gin.Context) {
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
 	}
 	defer client.Stop()
 
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+	// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+
+	termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
+	ctx := context.Background()
+	searchResult, err := client.Search().Index("logstash-2018.04.25").Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+	if err != nil {
+		//doSomething
+		fmt.Println(err.Error())
+	}
+
+	da, err := json.Marshal(searchResult)
+	if err != nil {
+		//doSometing
+	}
+
+	err1 := json.Unmarshal(da, &url)
+	if err1 != nil {
+		//doSometing
+		c.JSON(http.StatusOK, gin.H{"message": "false", "err": err1.Error()})
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": url.Aggregations.TermAgg.Buckets})
 
 }
