@@ -244,7 +244,7 @@ func PieChar(c *gin.Context) {
 			fmt.Println(index)
 			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
 			from := strconv.FormatFloat(elem.From, 'f', 0, 64)
-			item.Name = to + ms + "-" + from + ms
+			item.Name = from + ms + "-" + to + ms
 			item.Value = elem.DocCount
 			pieResults = append(pieResults, item)
 
@@ -253,7 +253,7 @@ func PieChar(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
-	pieResults=nil
+	pieResults = nil
 	// c.JSON(http.StatusOK, searchResult)
 
 }
