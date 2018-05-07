@@ -152,7 +152,7 @@ const  optionPie = {
     },
     series : [
         {
-            name: '访问来源',
+            name: '网关',
             type: 'pie',
             radius : '55%',
             center: ['50%', '60%'],
@@ -315,9 +315,7 @@ export default {
                    let server=Api.PieChart;
                     //  let server=Api.MixedLineAndBar;
                     Axios.get(server).then((res)=>{
-                          console.log("showPieChart方法进来了=================");
                            if(res.data.message=="ok")
-                           console.log(res.data);
                             rangechart.setOption({
                                  series : [
                                      {
@@ -325,8 +323,6 @@ export default {
                                      }
                              ]
                            });
-                             console.log("展示数据==============");
-                             console.log(res.data.data);
                     }).catch((err)=>{
                         this.$Message.error(err.message);
                         console.log(err);
