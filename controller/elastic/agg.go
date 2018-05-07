@@ -55,11 +55,12 @@ type Bucket struct {
 
 //AggResult 聚合的结果
 type AggResult struct {
-	Min        [24]float64 `json:"min" binding:"required"`
-	Max        [24]float64 `json:"max" binding:"required"`
-	Avg        [24]float64 `json:"avg" binding:"required"`
-	Count      [24]int     `json:"count" binding:"required"`
-	TotalCount int         `json:"totalCount" binding:"required"`
+	Min             [24]float64 `json:"min" binding:"required"`
+	Max             [24]float64 `json:"max" binding:"required"`
+	Avg             [24]float64 `json:"avg" binding:"required"`
+	Count           [24]int     `json:"count" binding:"required"`
+	TotalCount      int         `json:"totalCount" binding:"required"`
+	ShareTotalCount int         `json:"shareTotalCount" binding:"required"`
 }
 
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
@@ -136,6 +137,7 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 	result.Max = max
 	result.Count = count
 	result.TotalCount = aggMetrics.Hits.Total
+	result.ShareTotalCount = aggMetrics.Shards.Total
 	return result, nil
 
 }

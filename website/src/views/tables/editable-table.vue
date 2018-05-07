@@ -26,24 +26,29 @@
            <span @click="handleSubmit"> <Radio label="按每天24小时聚合"></Radio> </span>
             </Col>
             <Col span="1" offset="12">
-           <Radio label="Pie聚合"></Radio>
+           <span @click="showPieChart"> <Radio label="Pie聚合"></Radio> </span>
            </Col>
            <Col span="1" offset="9">
            <Radio label="Heap Map聚合"></Radio>
            </Col>
            </RadioGroup>
-           <Col span="4" offset="">
-           <label>总共聚合到{{totalCount}}条记录</label>
+           <Col span="5" offset="">
+           <label>总共聚合到{{totalCount}}条记录和{{shareCount}}分片</label>
            </Col>
            
       </Row>
          <div style="height:50px;"></div>
          <Card>
-        <div style="width:1100px;height:700px;"  id="visite_volume_con"></div> 
+        
+        <div  v-show="agg" style="width:1100px;height:700px;"  id="visite_volume_con" ></div>
+        <div v-show="pie" style="width:1100px;height:700px;"  id="range_pie_chart"  ></div> 
+        
         <!-- style="width:1100px;height:700px;" -->
          </Card>
-        <Table stripe :columns="columns" :data="data"></Table>
+        <Table border stripe :columns="columns" :data="data"></Table>
     </div>
+
+    
     </Card>
     
     
@@ -53,6 +58,7 @@
 import echarts from 'echarts';
 import Axios from 'axios';
 import Api  from '@/api';
+
 const option = {
                 tooltip: {
         trigger: 'axis',
@@ -106,13 +112,6 @@ const option = {
         }
     ],
     series: [
-        // {
-        //     name:'请求数量',
-        //     type:'bar',
-        //     barWidth:35,
-        //     itemStyle:{normal:{color:'#ff9966'}},
-        //     data:[]
-        // },
         
         {
             name:'最大耗时(ms)',
@@ -134,7 +133,47 @@ const option = {
             data:[]
         }
     ]
-            };
+ };
+
+const  optionPie = {
+    title : {
+        text: '网关访问速度',
+        subtext: '网关',
+        x:'center'
+    },
+    tooltip : {
+        trigger: 'item',
+        formatter: "{a} <br/>{b} : {c} ({d}%)"
+    },
+    legend: {
+        orient: 'vertical',
+        left: 'left',
+        data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+    },
+    series : [
+        {
+            name: '访问来源',
+            type: 'pie',
+            radius : '55%',
+            center: ['50%', '60%'],
+            data:[
+                {value:666, name:'直接访问'},
+                {value:310, name:'邮件营销'},
+                {value:234, name:'联盟广告'},
+                {value:135, name:'视频广告'},
+                {value:1548, name:'搜索引擎'}
+            ],
+            itemStyle: {
+                emphasis: {
+                    shadowBlur: 10,
+                    shadowOffsetX: 0,
+                    shadowColor: 'rgba(0, 0, 0, 0.5)'
+                }
+            }
+        }
+    ]
+};
+
 export default {
     name: 'visiteVolume',
     data () {
@@ -142,9 +181,12 @@ export default {
             //
             // result:this.handleSubmit()
             // cityList:this.queryUrlName()
+            shareCount:0,
+            agg:true,
+            pie:false,
             cityList: [],
             model1:'',
-            animal: '爪哇犀牛',
+            animal: 'test',
             totalCount:0,
             columns:
             [
@@ -179,13 +221,14 @@ export default {
         this.$nextTick(() => {
             this.handleSubmit();
             this.queryUrlName();
+            // this.showPieChart();
         });
     },
     methods: {
         handleSubmit () {
+             this.agg=true;
+             this.pie=false;
               let visiteVolume = echarts.init(document.getElementById('visite_volume_con'));
-
-            
 
                visiteVolume.setOption(option);
 
@@ -260,6 +303,62 @@ export default {
                           }
                       
                            
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
+        },
+        showPieChart(){
+             
+            this.agg=false;
+            this.pie=true;
+            let rangechart = echarts.init(document.getElementById('range_pie_chart'));
+             rangechart.setOption(optionPie);
+
+             let server=Api.MixedLineAndBar;
+                    
+                    Axios.get(server).then((res)=>{
+                        console.log(res.data);
+                        visiteVolume.hideLoading();
+                        visiteVolume.showLoading();
+
+                        let tabledata=[];
+                        if(res.data.message=="ok"){
+                            setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
+                           visiteVolume.hideLoading(); //隐藏加载动画
+                            this.totalCount=res.data.data.totalCount;
+                           
+                           visiteVolume.setOption({
+                                series: [
+                               {
+                                data: res.data.data.max
+                               },
+                               {
+                                data: res.data.data.min
+                               },
+                               {
+                                data: res.data.data.avg
+                               }
+                            ]
+                           });
+                             }, 1000 );
+                             for(let i=0; i<res.data.data.avg.length; i++){
+                                 let timeHour=`${i+1}时`;
+                                 console.log(name);
+                                 tabledata.push({
+                                     time:timeHour,
+                                     maxTime:res.data.data.max[i],
+                                     minTime:res.data.data.min[i],
+                                     avgTime:res.data.data.avg[i],
+                                     countRequest:res.data.data.count[i]
+
+                                 });
+
+                             }
+                             this.data=tabledata;
+                              this.shareCount=res.data.data.shareTotalCount;
+
+                        }
                     }).catch((err)=>{
                         this.$Message.error(err.message);
                         console.log(err);
