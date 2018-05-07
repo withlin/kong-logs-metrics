@@ -145,7 +145,7 @@ export default {
             cityList: [],
             model1:'',
             animal: '爪哇犀牛',
-            totalCount:'',
+            totalCount:0,
             columns:
             [
                    
