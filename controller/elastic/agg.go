@@ -163,9 +163,9 @@ func PieChar(c *gin.Context) {
 	r10 := 500
 	ctx := context.Background()
 	rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
-	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
+	// tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
 
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Size(0).Aggregation("rangeAgg", rangeAgg).Aggregation("tophitAgg", tophitAgg).Do(ctx)
+	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 	if err != nil {
 		//do something
@@ -179,7 +179,7 @@ func PieChar(c *gin.Context) {
 	errCode := json.Unmarshal(buf, &aggMetrics)
 
 	fmt.Println(errCode)
-	c.JSON(http.StatusOK, gin.H{"message": "false", "data": searchResult})
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": searchResult})
 
 }
 

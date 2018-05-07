@@ -20,16 +20,16 @@
         
       </Row>
       <Row>
-           <div style="height:20px;"></div>
+           <div style="height:25px;"></div>
            <RadioGroup v-model="animal">
             <Col span="1" >
            <span @click="handleSubmit"> <Radio label="按每天24小时聚合"></Radio> </span>
             </Col>
-            <Col span="1" offset="9">
-           <Radio label="按照范围聚合"></Radio>
+            <Col span="1" offset="12">
+           <Radio label="Pie聚合"></Radio>
            </Col>
-           <Col span="1" offset="8">
-           <Radio label="按泡泡聚合"></Radio>
+           <Col span="1" offset="9">
+           <Radio label="Heap Map聚合"></Radio>
            </Col>
            </RadioGroup>
            <Col span="4" offset="">
