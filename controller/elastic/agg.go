@@ -178,8 +178,6 @@ type PieResult struct {
 
 var pieMetrics PieMetrics
 
-var pieResults []PieResult
-
 // PieChar 圆表查询
 func PieChar(c *gin.Context) {
 
@@ -217,10 +215,10 @@ func PieChar(c *gin.Context) {
 		//doSomthing
 	}
 	errCode := json.Unmarshal(buf, &pieMetrics)
-
-	fmt.Println(errCode)
-
-	m := make(map[string]int)
+	
+	if errCode != nil {
+		fmt.Println(errCode)
+	}
 
 	agg := pieMetrics.Aggregations
 	rAgg := agg.RangeAgg
@@ -229,19 +227,19 @@ func PieChar(c *gin.Context) {
 
 	var item PieResult
 
+	pieResults := []PieResult{}
 	// fmt.Println(PieBuckets[1].DocCount)
-	for index, elem := range pieBuckets {
+	for _, elem := range pieBuckets {
 
 		if elem.From == 0 {
 			// fmt.Println(index)
 			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
-			m[to+ms] = elem.DocCount
 			item.Name = to + ms
 			item.Value = elem.DocCount
 			pieResults = append(pieResults, item)
 
 		} else {
-			fmt.Println(index)
+			// fmt.Println(index)
 			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
 			from := strconv.FormatFloat(elem.From, 'f', 0, 64)
 			item.Name = from + ms + "-" + to + ms
@@ -253,7 +251,6 @@ func PieChar(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
-	pieResults = nil
 	// c.JSON(http.StatusOK, searchResult)
 
 }
