@@ -12,7 +12,8 @@ const Login={
     //检查检查用户是否登录
     CheckLogin:serverAddress+'/checklogin',
     MixedLineAndBar:serverAddress+'/test',
-    QueryUrlName:serverAddress+'/test/queryUrlName'
+    QueryUrlName:serverAddress+'/test/queryUrlName',
+    PieChart:serverAddress +'/test/PieChart'
     
 
 }

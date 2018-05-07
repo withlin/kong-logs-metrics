@@ -142,6 +142,44 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 
 }
 
+//PieMetrics Pie聚合返回的实体
+type PieMetrics struct {
+	Took     int    `json:"took"`
+	ScrollID string `json:"_scroll_id"`
+	Hits     struct {
+		Total    int           `json:"total"`
+		MaxScore int           `json:"max_score"`
+		Hits     []interface{} `json:"hits"`
+	} `json:"hits"`
+	Suggest      interface{} `json:"suggest"`
+	Aggregations struct {
+		RangeAgg struct {
+			Buckets []struct {
+				Key      string  `json:"key"`
+				To       float64 `json:"to"`
+				DocCount int     `json:"doc_count"`
+				From     float64 `json:"from,omitempty"`
+			} `json:"buckets"`
+		} `json:"rangeAgg"`
+	} `json:"aggregations"`
+	TimedOut bool `json:"timed_out"`
+	Shards   struct {
+		Total      int `json:"total"`
+		Successful int `json:"successful"`
+		Failed     int `json:"failed"`
+	} `json:"_shards"`
+}
+
+//PieResult 返回Pie结果
+type PieResult struct {
+	Value int    `json:"value"`
+	Name  string `json:"name"`
+}
+
+var pieMetrics PieMetrics
+
+var pieResults []PieResult
+
 // PieChar 圆表查询
 func PieChar(c *gin.Context) {
 
@@ -178,10 +216,45 @@ func PieChar(c *gin.Context) {
 	if err != nil {
 		//doSomthing
 	}
-	errCode := json.Unmarshal(buf, &aggMetrics)
+	errCode := json.Unmarshal(buf, &pieMetrics)
 
 	fmt.Println(errCode)
-	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": searchResult})
+
+	m := make(map[string]int)
+
+	agg := pieMetrics.Aggregations
+	rAgg := agg.RangeAgg
+	pieBuckets := rAgg.Buckets
+	ms := "ms"
+
+	var item PieResult
+
+	// fmt.Println(PieBuckets[1].DocCount)
+	for index, elem := range pieBuckets {
+
+		if elem.From == 0 {
+			// fmt.Println(index)
+			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+			m[to+ms] = elem.DocCount
+			item.Name = to + ms
+			item.Value = elem.DocCount
+			pieResults = append(pieResults, item)
+
+		} else {
+			fmt.Println(index)
+			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+			from := strconv.FormatFloat(elem.From, 'f', 0, 64)
+			item.Name = to + ms + "-" + from + ms
+			item.Value = elem.DocCount
+			pieResults = append(pieResults, item)
+
+		}
+
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
+	pieResults=nil
+	// c.JSON(http.StatusOK, searchResult)
 
 }
 

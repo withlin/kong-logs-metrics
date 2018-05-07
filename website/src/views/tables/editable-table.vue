@@ -14,7 +14,7 @@
         
 
         <Col span="4" offset="4">
-        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
+        <!-- <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px"> -->
         </DatePicker>
         </Col>
         
@@ -26,14 +26,14 @@
            <span @click="handleSubmit"> <Radio label="按每天24小时聚合"></Radio> </span>
             </Col>
             <Col span="1" offset="12">
-           <span @click="showPieChart"> <Radio label="Pie聚合"></Radio> </span>
+           <span @click="showPieChart"> <Radio label="按照范围聚合"></Radio> </span>
            </Col>
            <Col span="1" offset="9">
            <Radio label="Heap Map聚合"></Radio>
            </Col>
            </RadioGroup>
            <Col span="5" offset="">
-           <label>总共聚合到{{totalCount}}条记录和{{shareCount}}分片</label>
+           <label>总共聚合到{{totalCount}}条记录和{{shareCount}}个分片</label>
            </Col>
            
       </Row>
@@ -148,7 +148,7 @@ const  optionPie = {
     legend: {
         orient: 'vertical',
         left: 'left',
-        data: ['直接访问','邮件营销','联盟广告','视频广告','搜索引擎']
+        data: ['30ms','30ms-90ms','90ms-120ms','120ms-150ms','150ms-180ms','180ms-210ms','210ms-240ms','240ms-270ms','270ms-300ms','300ms-500ms']
     },
     series : [
         {
@@ -157,11 +157,6 @@ const  optionPie = {
             radius : '55%',
             center: ['50%', '60%'],
             data:[
-                {value:666, name:'直接访问'},
-                {value:310, name:'邮件营销'},
-                {value:234, name:'联盟广告'},
-                {value:135, name:'视频广告'},
-                {value:1548, name:'搜索引擎'}
             ],
             itemStyle: {
                 emphasis: {
@@ -228,6 +223,7 @@ export default {
         handleSubmit () {
              this.agg=true;
              this.pie=false;
+        
               let visiteVolume = echarts.init(document.getElementById('visite_volume_con'));
 
                visiteVolume.setOption(option);
@@ -274,6 +270,7 @@ export default {
                                  });
 
                              }
+                             this.shareCount=res.data.data.shareTotalCount;
                              this.data=tabledata;
 
                         }
@@ -310,55 +307,26 @@ export default {
         },
         showPieChart(){
              
-            this.agg=false;
-            this.pie=true;
-            let rangechart = echarts.init(document.getElementById('range_pie_chart'));
-             rangechart.setOption(optionPie);
-
-             let server=Api.MixedLineAndBar;
-                    
+                      this.agg=false;
+                      this.pie=true;
+                      let rangechart = echarts.init(document.getElementById('range_pie_chart'));
+                      rangechart.setOption(optionPie);
+            
+                   let server=Api.PieChart;
+                    //  let server=Api.MixedLineAndBar;
                     Axios.get(server).then((res)=>{
-                        console.log(res.data);
-                        visiteVolume.hideLoading();
-                        visiteVolume.showLoading();
-
-                        let tabledata=[];
-                        if(res.data.message=="ok"){
-                            setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
-                           visiteVolume.hideLoading(); //隐藏加载动画
-                            this.totalCount=res.data.data.totalCount;
-                           
-                           visiteVolume.setOption({
-                                series: [
-                               {
-                                data: res.data.data.max
-                               },
-                               {
-                                data: res.data.data.min
-                               },
-                               {
-                                data: res.data.data.avg
-                               }
-                            ]
+                          console.log("showPieChart方法进来了=================");
+                           if(res.data.message=="ok")
+                           console.log(res.data);
+                            rangechart.setOption({
+                                 series : [
+                                     {
+                                         data:res.data.data
+                                     }
+                             ]
                            });
-                             }, 1000 );
-                             for(let i=0; i<res.data.data.avg.length; i++){
-                                 let timeHour=`${i+1}时`;
-                                 console.log(name);
-                                 tabledata.push({
-                                     time:timeHour,
-                                     maxTime:res.data.data.max[i],
-                                     minTime:res.data.data.min[i],
-                                     avgTime:res.data.data.avg[i],
-                                     countRequest:res.data.data.count[i]
-
-                                 });
-
-                             }
-                             this.data=tabledata;
-                              this.shareCount=res.data.data.shareTotalCount;
-
-                        }
+                             console.log("展示数据==============");
+                             console.log(res.data.data);
                     }).catch((err)=>{
                         this.$Message.error(err.message);
                         console.log(err);
