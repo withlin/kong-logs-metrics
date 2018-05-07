@@ -55,9 +55,11 @@ type Bucket struct {
 
 //AggResult 聚合的结果
 type AggResult struct {
-	Min [24]float64 `json:"min" binding:"required"`
-	Max [24]float64 `json:"max" binding:"required"`
-	Avg [24]float64 `json:"avg" binding:"required"`
+	Min        [24]float64 `json:"min" binding:"required"`
+	Max        [24]float64 `json:"max" binding:"required"`
+	Avg        [24]float64 `json:"avg" binding:"required"`
+	Count      [24]int     `json:"count" binding:"required"`
+	TotalCount int         `json:"totalCount" binding:"required"`
 }
 
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
@@ -110,6 +112,8 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 	var min [24]float64
 	var max [24]float64
 	var avg [24]float64
+	var count [24]int
+
 	var result AggResult
 	for _, elem := range arr {
 		location, err := time.LoadLocation("Asia/Shanghai")
@@ -124,16 +128,20 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 		min[tim] = elem.MinAgg.Value
 		max[tim] = elem.MaxAgg.Value
 		avg[tim] = elem.AvgAgg.Value
+		count[tim] = elem.DocCount
 
 	}
 	result.Avg = avg
 	result.Min = min
 	result.Max = max
+	result.Count = count
+	result.TotalCount = aggMetrics.Hits.Total
 	return result, nil
 
 }
 
-func pieChar(c *gin.Context) {
+// PieChar 圆表查询
+func PieChar(c *gin.Context) {
 
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
@@ -155,12 +163,13 @@ func pieChar(c *gin.Context) {
 	r10 := 500
 	ctx := context.Background()
 	rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
-	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Size(2000).Sort("started_at", false)
+	tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
 
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Aggregation("rangeAgg", rangeAgg).Aggregation("tophitAgg", tophitAgg).Do(ctx)
+	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Size(0).Aggregation("rangeAgg", rangeAgg).Aggregation("tophitAgg", tophitAgg).Do(ctx)
 
 	if err != nil {
 		//do something
+		fmt.Println("发生错误了==================" + err.Error())
 	}
 
 	buf, err := json.Marshal(searchResult)
@@ -170,7 +179,7 @@ func pieChar(c *gin.Context) {
 	errCode := json.Unmarshal(buf, &aggMetrics)
 
 	fmt.Println(errCode)
-	c.JSON(http.StatusOK, gin.H{"message": "false", "data": "aaa"})
+	c.JSON(http.StatusOK, gin.H{"message": "false", "data": searchResult})
 
 }
 

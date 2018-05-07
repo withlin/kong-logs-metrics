@@ -1,24 +1,50 @@
 <template>
+ <Card>
     <div>
-        <div style="height:10px;"></div>
+        <div style="height:20px;"></div>
         <Row>
-        <Col span="8">
-        <Button @click="handleSubmit" type="primary" >显示图表</Button>
+        <Col span="4">
+        <Button @click="handleSubmit" type="primary" >查询</Button>
+        </Col>
+        <Col span="3">
         <Select v-model="model1" style="width:200px">
         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
-        
         </Col>
+        
 
-        <Col span="1" offset="1">
+        <Col span="4" offset="4">
         <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
         </DatePicker>
         </Col>
+        
+      </Row>
+      <Row>
+           <div style="height:20px;"></div>
+           <RadioGroup v-model="animal">
+            <Col span="1" >
+           <span @click="handleSubmit"> <Radio label="按每天24小时聚合"></Radio> </span>
+            </Col>
+            <Col span="1" offset="9">
+           <Radio label="按照范围聚合"></Radio>
+           </Col>
+           <Col span="1" offset="8">
+           <Radio label="按泡泡聚合"></Radio>
+           </Col>
+           </RadioGroup>
+           <Col span="4" offset="">
+           <label>总共聚合到{{totalCount}}条记录</label>
+           </Col>
+           
       </Row>
          <div style="height:50px;"></div>
-        <div style="width:1100px;height:700px;" id="visite_volume_con"></div>
-        <Table stripe :columns="columns1" :data="data1" style="width:1100px;"></Table>
+         <Card>
+        <div style="width:1100px;height:700px;"  id="visite_volume_con"></div> 
+        <!-- style="width:1100px;height:700px;" -->
+         </Card>
+        <Table stripe :columns="columns" :data="data"></Table>
     </div>
+    </Card>
     
     
 </template>
@@ -51,7 +77,7 @@ const option = {
     xAxis: [
         {
             type: 'category',
-            data: ['0时','1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时'],
+            data: ['1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时','24时'],
             axisPointer: {
                 type: 'none'
             }
@@ -80,6 +106,14 @@ const option = {
         }
     ],
     series: [
+        // {
+        //     name:'请求数量',
+        //     type:'bar',
+        //     barWidth:35,
+        //     itemStyle:{normal:{color:'#ff9966'}},
+        //     data:[]
+        // },
+        
         {
             name:'最大耗时(ms)',
             type:'bar',
@@ -89,8 +123,8 @@ const option = {
         },
         {
             name:'最小耗时(ms)',
-            type:'bar',
-            barWidth:40,
+            type:'line',
+            // barWidth:40,
             data:[]
         },
         {
@@ -107,11 +141,44 @@ export default {
         return {
             //
             // result:this.handleSubmit()
+            // cityList:this.queryUrlName()
+            cityList: [],
+            model1:'',
+            animal: '爪哇犀牛',
+            totalCount:'',
+            columns:
+            [
+                   
+                    {
+                        title: '时间',
+                        key: 'time'
+                    },
+                    {
+                        title: '请求数量',
+                        key: 'countRequest'
+                    },
+                    {
+                        title: '最大耗时(ms)',
+                        key: 'maxTime'
+                    },
+                    {
+                        title: '最小耗时(ms)',
+                        key: 'minTime'
+                    },
+                    {
+                        title: '平均耗时(ms)',
+                        key: 'avgTime'
+                    }
+            ],
+            data:
+            [
+            ]
         };
     },
     mounted () {
         this.$nextTick(() => {
-            
+            this.handleSubmit();
+            this.queryUrlName();
         });
     },
     methods: {
@@ -132,13 +199,14 @@ export default {
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
 
-                        
+                        let tabledata=[];
                         if(res.data.message=="ok"){
                             setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
                            visiteVolume.hideLoading(); //隐藏加载动画
-                             
+                            this.totalCount=res.data.data.totalCount
                            visiteVolume.setOption({
-                                series: [{
+                                series: [
+                               {
                                 data: res.data.data.max
                                },
                                {
@@ -149,7 +217,21 @@ export default {
                                }
                             ]
                            });
-                             }, 1000 )
+                             }, 1000 );
+                             for(let i=0; i<res.data.data.avg.length; i++){
+                                 let timeHour=`${i+1}时`;
+                                 console.log(name);
+                                 tabledata.push({
+                                     time:timeHour,
+                                     maxTime:res.data.data.max[i],
+                                     minTime:res.data.data.min[i],
+                                     avgTime:res.data.data.avg[i],
+                                     countRequest:res.data.data.count[i]
+
+                                 });
+
+                             }
+                             this.data=tabledata;
 
                         }
                     }).catch((err)=>{
@@ -157,6 +239,31 @@ export default {
                         console.log(err);
                     });
                     
+        },
+        queryUrlName(){
+            let server=Api.QueryUrlName;
+            let cyList=[]
+            Axios.get(server).then((res)=>{
+                        console.log(res.data);
+
+                          if(res.data.message=="ok"){
+                              for (let index = 0; index < res.data.data.length; index++) {
+                                console.log('这里是循环');
+                                console.log(res.data.data[index]);
+                                 cyList.push({
+                                     value:res.data.data[index].key,
+                                     label:res.data.data[index].key
+                                 })
+                                  
+                              }
+                              this.cityList=cyList;
+                          }
+                      
+                           
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
         }
     }
 };
