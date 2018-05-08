@@ -215,7 +215,6 @@ func PieChar(c *gin.Context) {
 		//doSomthing
 	}
 	errCode := json.Unmarshal(buf, &pieMetrics)
-	
 	if errCode != nil {
 		fmt.Println(errCode)
 	}

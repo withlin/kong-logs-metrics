@@ -1,7 +1,24 @@
+<style lang="less">
+    .vertical-center-modal{
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        .ivu-modal{
+            top: 0;
+        }
+    }
+</style>
 <template>
     <div>
-         <Table border stripe :columns="columns" :data="data"></Table>
+         <Table border stripe :loading="loading" :columns="columns" :data="data"></Table>
          <Page :total="50" size="small" show-elevator show-sizer></Page>
+          <Modal
+           title="详情"
+           v-model="logdetail"
+           class-name="vertical-center-modal">
+           {{showlogsdetail}}
+          </Modal>
     </div>
 </template>
 
@@ -13,11 +30,38 @@ export default {
     data () {
         return {
             data:[],
+            logdetail:false,
+            loading:true,
+            showlogsdetail:'',
             columns:
             [
+                    
                     {
                         title: '详情',
-                        key: 'detail'
+                        key: 'action',
+                        width: 150,
+                        align: 'center',
+                        
+                        render: (h, params) => {
+                            return h('div', [
+                                h('Button', {
+                                    props: {
+                                        type: 'primary',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
+                                    },
+                                    on: {
+                                        click: () => {
+                                            
+                                           this.loadLogsDetail(params.row.id);
+                                           this.logdetail=true;
+                                        }
+                                    }
+                                }, '详情')
+                            ]);
+                        }
                     },
                     {
                         title: 'Uris',
@@ -48,7 +92,9 @@ export default {
     },
     mounted () {
         this.$nextTick(()=>{
+            this.loading=true;
             this.handleMethod();
+            this.loading=false;
         });
     },
     methods: {
@@ -58,6 +104,7 @@ export default {
                     //  let server=Api.MixedLineAndBar;
                     let tableData=[];
                     Axios.get(server).then((res)=>{
+                           
                            if(res.data.message=="ok"){
                                console.log("=======================================展示日志的数据");
                                console.log(res.data.data);
@@ -72,11 +119,36 @@ export default {
                                        "consumer":''
                                });
 
-                               console.log(tableData);
-                               this.data=tableData;
-                               });
                                
+                               });
+                               this.data=tableData;
                            }
+
+                            
+                            
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
+        },
+        loadLogsDetail(id){
+                    
+                    let server=Api.ShowLogsDetail;
+                    let tableData=[];
+                    let data={'ID':`${id}`};
+
+                    console.log("===========id为============");
+                    console.log(id);
+
+                    Axios.post(server,data).then((res)=>{
+                         
+                           if(res.data.message=="ok"){
+                            //    console.log(res.data.data);
+                            //    console.log(res.data.data[0]);
+                             this.showlogsdetail=res.data.data;
+                           }
+
+                            
                             
                     }).catch((err)=>{
                         this.$Message.error(err.message);

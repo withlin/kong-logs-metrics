@@ -14,7 +14,8 @@ const Login={
     MixedLineAndBar:serverAddress+'/test',
     QueryUrlName:serverAddress+'/test/queryUrlName',
     PieChart:serverAddress +'/test/PieChart',
-    ShowLog:serverAddress+'/showlogs'
+    ShowLog:serverAddress+'/showlogs',
+    ShowLogsDetail:serverAddress+"/findlogdetailbyid"
     
 
 }

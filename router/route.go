@@ -20,5 +20,6 @@ func Route(router *gin.Engine) {
 		api.GET("/test/queryUrlName", agg.QueryURLName)
 		api.POST("/checklogin", login.PostCheckLogin)
 		api.GET("/showlogs", showlog.ShowLogs)
+		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
 	}
 }
