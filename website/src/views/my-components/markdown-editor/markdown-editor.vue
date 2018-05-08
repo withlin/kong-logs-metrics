@@ -10,7 +10,9 @@
     }
 
     .textarea-show{  
-    border:0;  
+    border:-10;  
+    -ms-overflow-style:none;
+    overflow:-moz-scrollbars-none;
     // background-color:transparent;  
     // scrollbar-arrow-color:yellow;  
     // scrollbar-base-color:lightsalmon;  
@@ -25,7 +27,6 @@
          <Table border stripe :loading="loading" :columns="columns" :data="data"></Table>
          <Page :total="50" size="small" show-elevator show-sizer></Page>
           <Modal
-           title="详情"
            v-model="logdetail"
            footer-hide="true"
            class-name="vertical-center-modal">
@@ -93,6 +94,14 @@ export default {
                         key: 'name'
                     },
                     {
+                        title: '总耗时',
+                        key: 'usetime'
+                    },
+                    {
+                        title: '开始时间',
+                        key: 'starttime'
+                    },
+                    {
                         title: '消费者',
                         key: 'consumer'
                     },
@@ -129,7 +138,9 @@ export default {
                                        "upstreamurl":element._source.api.upstream_url,
                                        "name":element._source.api.name,
                                        "id":element._id,
-                                       "consumer":''
+                                       "consumer":'',
+                                       "usetime":`${element._source.latencies.request} ms`,
+                                       "starttime":element._source.started_at
                                });
 
                                
