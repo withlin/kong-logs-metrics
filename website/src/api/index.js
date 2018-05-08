@@ -13,7 +13,8 @@ const Login={
     CheckLogin:serverAddress+'/checklogin',
     MixedLineAndBar:serverAddress+'/test',
     QueryUrlName:serverAddress+'/test/queryUrlName',
-    PieChart:serverAddress +'/test/PieChart'
+    PieChart:serverAddress +'/test/PieChart',
+    ShowLog:serverAddress+'/showlogs'
     
 
 }

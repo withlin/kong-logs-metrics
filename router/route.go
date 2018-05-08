@@ -4,6 +4,7 @@ import (
 	"kong-logs-metrics/config"
 	"kong-logs-metrics/controller/elastic"
 	"kong-logs-metrics/controller/login"
+	"kong-logs-metrics/controller/showlog"
 
 	"github.com/gin-gonic/gin"
 )
@@ -18,5 +19,6 @@ func Route(router *gin.Engine) {
 		api.GET("/test/PieChart", agg.PieChar)
 		api.GET("/test/queryUrlName", agg.QueryURLName)
 		api.POST("/checklogin", login.PostCheckLogin)
+		api.GET("/showlogs", showlog.ShowLogs)
 	}
 }
