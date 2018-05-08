@@ -14,7 +14,7 @@
         
 
         <Col span="4" offset="4">
-        <!-- <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px"> -->
+        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
         </DatePicker>
         </Col>
         

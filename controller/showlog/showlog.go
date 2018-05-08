@@ -43,11 +43,11 @@ type Logs struct {
 					URI string `json:"uri"`
 					URL string `json:"url"`
 				} `json:"request"`
-				Tries []struct {
-					Port            int    `json:"port"`
-					BalancerLatency int    `json:"balancer_latency"`
-					IP              string `json:"ip"`
-				} `json:"tries"`
+				// Tries []struct {
+				// 	Port            int    `json:"port"`
+				// 	BalancerLatency int    `json:"balancer_latency"`
+				// 	IP              string `json:"ip"`
+				// } `json:"tries"`
 				Latencies struct {
 					Request int `json:"request"`
 					Proxy   int `json:"proxy"`
@@ -178,6 +178,7 @@ func FindLogDetailByID(c *gin.Context) {
 				//doSometing
 			}
 			test := logs.Hits.Hits[0].Source
+			// c.IndentedJSON()
 			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
 
 		} else {

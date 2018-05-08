@@ -8,6 +8,17 @@
             top: 0;
         }
     }
+
+    .textarea-show{  
+    border:0;  
+    // background-color:transparent;  
+    // scrollbar-arrow-color:yellow;  
+    // scrollbar-base-color:lightsalmon;  
+    overflow: hidden;
+    background-color: #e9e9e9;  
+    height: 1000px;  
+    width: 500px;
+}  
 </style>
 <template>
     <div>
@@ -16,8 +27,10 @@
           <Modal
            title="详情"
            v-model="logdetail"
+           footer-hide="true"
            class-name="vertical-center-modal">
-           {{showlogsdetail}}
+          <!-- <span></span> -->
+           <textarea class="textarea-show" readonly="readonly">{{showlogsdetail}}</textarea>
           </Modal>
     </div>
 </template>
@@ -145,6 +158,8 @@ export default {
                            if(res.data.message=="ok"){
                             //    console.log(res.data.data);
                             //    console.log(res.data.data[0]);
+                        //   let test= JSON.stringify(res.data.data, null, 2);
+                        //   console.log(test);
                              this.showlogsdetail=res.data.data;
                            }
 
