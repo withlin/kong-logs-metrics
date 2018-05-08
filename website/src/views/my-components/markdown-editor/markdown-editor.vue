@@ -10,9 +10,7 @@
     }
 
     .textarea-show{  
-    border:-10;  
-    -ms-overflow-style:none;
-    overflow:-moz-scrollbars-none;
+    border:-10;
     // background-color:transparent;  
     // scrollbar-arrow-color:yellow;  
     // scrollbar-base-color:lightsalmon;  
@@ -25,11 +23,16 @@
 <template>
     <div>
          <Table border stripe :loading="loading" :columns="columns" :data="data"></Table>
-         <Page :total="50" size="small" show-elevator show-sizer></Page>
+         <div style="margin: 10px;overflow: hidden">
+           <div style="float: right;">
+            <Page :total=total :current=current @on-change="changePage"  show-elevator show-sizer></Page>
+           </div>
+         </div>
           <Modal
            v-model="logdetail"
-           footer-hide="true"
+           footer-hide=true
            class-name="vertical-center-modal">
+
           <!-- <span></span> -->
            <textarea class="textarea-show" readonly="readonly">{{showlogsdetail}}</textarea>
           </Modal>
@@ -44,6 +47,8 @@ export default {
     data () {
         return {
             data:[],
+            current:1,
+            total:0,
             logdetail:false,
             loading:true,
             showlogsdetail:'',
@@ -146,6 +151,7 @@ export default {
                                
                                });
                                this.data=tableData;
+                               this.total=tableData.length;
                            }
 
                             
@@ -160,17 +166,12 @@ export default {
                     let server=Api.ShowLogsDetail;
                     let tableData=[];
                     let data={'ID':`${id}`};
-
                     console.log("===========id为============");
                     console.log(id);
 
                     Axios.post(server,data).then((res)=>{
                          
                            if(res.data.message=="ok"){
-                            //    console.log(res.data.data);
-                            //    console.log(res.data.data[0]);
-                        //   let test= JSON.stringify(res.data.data, null, 2);
-                        //   console.log(test);
                              this.showlogsdetail=res.data.data;
                            }
 
@@ -180,6 +181,10 @@ export default {
                         this.$Message.error(err.message);
                         console.log(err);
                     });
+        },
+        changePage(index){
+            console.log(index);
+            // console.log(this.current);
         }
     }
 };

@@ -256,7 +256,7 @@ export default {
                                }
                             ]
                            });
-                             }, 1000 );
+                             }, 0 );
                              for(let i=0; i<res.data.data.avg.length; i++){
                                  let timeHour=`${i+1}时`;
                                  console.log(name);

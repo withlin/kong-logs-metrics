@@ -110,38 +110,56 @@ type Logs struct {
 // logs 声明
 var logs Logs
 
+//Page 分页
+type Page struct {
+	PageSize   int `json:"pagesize" binding:"exists"`
+	PageNumber int `json:"pagenumber" binding:"exists"`
+}
+
+var page Page
+
 //ShowLogs 展示日志
 func ShowLogs(c *gin.Context) {
 
-	fmt.Println("")
+	if err := c.ShouldBindJSON(&page); err == nil {
+		fmt.Println(page.PageNumber)
+		fmt.Println(page.PageNumber)
+		if page.PageNumber < 0 && page.PageSize < 0 {
+			client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+			if err != nil {
+				panic(err)
+			}
+			defer client.Stop()
+			query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 
-	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-	if err != nil {
-		panic(err)
+			ctx := context.Background()
+			searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
+
+			if err != nil {
+				//do Something
+				fmt.Println("======================出错啦=====================")
+			}
+
+			buf, err := json.Marshal(searchResult)
+			if err != nil {
+				//doSomthing
+			}
+			errCode := json.Unmarshal(buf, &logs)
+
+			if errCode != nil {
+				//doSometing
+			}
+
+			test := logs.Hits.Hits
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+
+		} else {
+			fmt.Println(err.Error())
+			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "无效的ID"})
+		}
+	} else {
+		fmt.Println(err.Error())
 	}
-	defer client.Stop()
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-
-	ctx := context.Background()
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(100).Do(ctx)
-
-	if err != nil {
-		//do Something
-		fmt.Println("======================出错啦=====================")
-	}
-
-	buf, err := json.Marshal(searchResult)
-	if err != nil {
-		//doSomthing
-	}
-	errCode := json.Unmarshal(buf, &logs)
-
-	if errCode != nil {
-		//doSometing
-	}
-
-	test := logs.Hits.Hits
-	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
 }
 
 //ID ID
