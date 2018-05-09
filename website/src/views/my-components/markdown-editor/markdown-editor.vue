@@ -22,10 +22,10 @@
 </style>
 <template>
     <div>
-         <Table border stripe :loading="loading" :columns="columns" :data="data"></Table>
+         <Table border stripe :loading="loading" :columns="columns" :data="data" :size="tableSize"></Table>
          <div style="margin: 10px;overflow: hidden">
            <div style="float: right;">
-            <Page :total=total :current=current @on-change="changePage"  show-elevator show-sizer></Page>
+            <Page :total=total :page-size=200 @on-change="changePage"  show-elevator  show-total></Page>
            </div>
          </div>
           <Modal
@@ -47,8 +47,8 @@ export default {
     data () {
         return {
             data:[],
-            current:1,
-            total:0,
+            total:200,
+            tableSize: 'default',
             logdetail:false,
             loading:true,
             showlogsdetail:'',
@@ -125,17 +125,22 @@ export default {
         });
     },
     methods: {
-        handleMethod(){
+        handleMethod(data){
 
                     let server=Api.ShowLog;
                     //  let server=Api.MixedLineAndBar;
                     let tableData=[];
-                    Axios.get(server).then((res)=>{
+                    console.log("=============页码跳转=========");
+                    console.log(data);
+                    if (data===undefined) {
+                        data={"pagesize":200,"pagenumber":1}
+                    }
+                    Axios.post(server,data).then((res)=>{
                            
                            if(res.data.message=="ok"){
-                               console.log("=======================================展示日志的数据");
+                               console.log("=======================================展示日志的数据=======================");
                                console.log(res.data.data);
-                               res.data.data.forEach(element => {
+                               res.data.data.hits.forEach(element => {
                                    tableData.push({
                                        "detail":'',
                                        "uris":element._source.request.uri,
@@ -151,7 +156,7 @@ export default {
                                
                                });
                                this.data=tableData;
-                               this.total=tableData.length;
+                               this.total=res.data.data.total;
                            }
 
                             
@@ -184,6 +189,9 @@ export default {
         },
         changePage(index){
             console.log(index);
+            // 200 400 From(page.PageNumber).Size(page.PageSize)
+            let data={"pagesize":200,"pagenumber":(index-1)*200}
+            this.handleMethod(data);
             // console.log(this.current);
         }
     }

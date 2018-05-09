@@ -112,27 +112,26 @@ var logs Logs
 
 //Page 分页
 type Page struct {
-	PageSize   int `json:"pagesize" binding:"exists"`
-	PageNumber int `json:"pagenumber" binding:"exists"`
+	PageSize   int `json:"pagesize" binding:"required,numeric"`
+	PageNumber int `json:"pagenumber" binding:"required,numeric"`
 }
-
-var page Page
 
 //ShowLogs 展示日志
 func ShowLogs(c *gin.Context) {
+	page := new(Page)
+	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+	if err != nil {
+		panic(err)
+	}
+	defer client.Stop()
+	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 
+	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
 		fmt.Println(page.PageNumber)
-		fmt.Println(page.PageNumber)
-		if page.PageNumber < 0 && page.PageSize < 0 {
-			client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-			if err != nil {
-				panic(err)
-			}
-			defer client.Stop()
-			query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+		fmt.Println(page.PageSize)
+		if page.PageNumber > 0 && page.PageSize > 0 {
 
-			ctx := context.Background()
 			searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 
 			if err != nil {
@@ -150,12 +149,12 @@ func ShowLogs(c *gin.Context) {
 				//doSometing
 			}
 
-			test := logs.Hits.Hits
+			test := logs.Hits
 			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
 
 		} else {
-			fmt.Println(err.Error())
-			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "无效的ID"})
+			// fmt.Println(err.Error())
+			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "PageSize和PageNumber必须大于零"})
 		}
 	} else {
 		fmt.Println(err.Error())
