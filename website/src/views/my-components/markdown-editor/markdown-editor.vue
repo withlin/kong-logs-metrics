@@ -23,37 +23,39 @@
 <template>
     <div>
         <Card style="height:100px">
-        <Row>
+        <!-- <Row>
         <Col span="4">
         <Button @click="handleSubmit" type="primary" >查询</Button>
         </Col>
         <Col span="3">
         <Select v-model="model1" style="width:200px">
         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-        </Select>
+        </Select> -->
         </Col>
 
         <Col span="4" offset="4">
-        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
+        <!-- <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px"> -->
         </DatePicker>
         </Col>
         </Row>
         </Card>
-         <Table border stripe :loading="loading" :columns="columns" :data="data" :size="tableSize"></Table>
+         <Table :columns="columns" :data="data" :size="tableSize"  border stripe ></Table>
          <div style="margin: 10px;overflow: hidden">
            <div style="float: right;">
             <Page :total=total :page-size=200 @on-change="changePage"  show-elevator  show-total></Page>
            </div>
+           
          </div>
           <Modal
            v-model="logdetail"
-           footer-hide=true
+           :footer-hide="true"
            class-name="vertical-center-modal">
 
           <!-- <span></span> -->
            <textarea class="textarea-show" readonly="readonly">{{showlogsdetail}}</textarea>
           </Modal>
     </div>
+    
 </template>
 
 <script>
@@ -66,8 +68,7 @@ export default {
             data:[],
             total:200,
             tableSize: 'default',
-            logdetail:false,
-            loading:true,
+            logdetail:false,           
             showlogsdetail:'',
             columns:
             [
@@ -136,9 +137,8 @@ export default {
     },
     mounted () {
         this.$nextTick(()=>{
-            this.loading=true;
             this.handleMethod();
-            this.loading=false;
+           
         });
     },
     methods: {
@@ -177,7 +177,7 @@ export default {
                            }
 
                             
-                            
+                        this.loading=false;    
                     }).catch((err)=>{
                         this.$Message.error(err.message);
                         console.log(err);
@@ -209,6 +209,7 @@ export default {
             // 200 400 From(page.PageNumber).Size(page.PageSize)
             let data={"pagesize":200,"pagenumber":(index-1)*200}
             this.handleMethod(data);
+             this.loading=false;
             // console.log(this.current);
         },
         convertUTCTimeToLocalTime(UTCDateString){
