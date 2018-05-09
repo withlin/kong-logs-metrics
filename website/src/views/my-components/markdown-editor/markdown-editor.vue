@@ -23,23 +23,23 @@
 <template>
     <div>
         <Card style="height:100px">
-        <!-- <Row>
+        <Row>
         <Col span="4">
         <Button @click="handleSubmit" type="primary" >查询</Button>
         </Col>
         <Col span="3">
         <Select v-model="model1" style="width:200px">
         <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
-        </Select> -->
+        </Select>
         </Col>
 
         <Col span="4" offset="4">
-        <!-- <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px"> -->
+        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
         </DatePicker>
         </Col>
         </Row>
         </Card>
-         <Table :columns="columns" :data="data" :size="tableSize"  border stripe ></Table>
+         <Table  :columns="columns" :data="data" :size="tableSize"  border stripe ></Table>
          <div style="margin: 10px;overflow: hidden">
            <div style="float: right;">
             <Page :total=total :page-size=200 @on-change="changePage"  show-elevator  show-total></Page>
