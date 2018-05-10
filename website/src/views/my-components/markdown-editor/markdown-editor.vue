@@ -61,6 +61,7 @@
 <script>
 import Axios from 'axios';
 import Api  from '@/api';
+import moment from 'moment';
 export default {
     name: 'showlog',
     data () {
@@ -119,12 +120,13 @@ export default {
                         key: 'name'
                     },
                     {
-                        title: '总耗时',
+                        title: '总耗时(ms)',
                         key: 'usetime'
                     },
                     {
                         title: '开始时间',
-                        key: 'starttime'
+                        key: 'starttime',
+                        sortable: true
                     },
                     {
                         title: '消费者',
@@ -163,6 +165,7 @@ export default {
                             
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {
+                                   let date=new Date(element._source.started_at);
                                    tableData.push({
                                        "detail":'',
                                        "uris":element._source.request.uri,
@@ -171,8 +174,8 @@ export default {
                                        "name":element._source.api.name,
                                        "id":element._id,
                                        "consumer":'',
-                                       "usetime":`${element._source.latencies.request} ms`,
-                                       "starttime":this.convertUTCTimeToLocalTime(element._source.started_at)
+                                       "usetime":`${element._source.latencies.request}`,
+                                       "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss')
                                });
 
                                
@@ -216,25 +219,6 @@ export default {
             this.handleMethod(data);
              this.loading=false;
             // console.log(this.current);
-        },
-        convertUTCTimeToLocalTime(UTCDateString){
-            if(!UTCDateString){
-          return '-';
-        }
-        function formatFunc(str) {    //格式化显示
-          return str > 9 ? str : '0' + str
-        }
-        let date2 = new Date(UTCDateString);     //这步是关键
-        let year = date2.getFullYear();
-        let mon = formatFunc(date2.getMonth() + 1);
-        let day = formatFunc(date2.getDate());
-        let hour = date2.getHours();
-        let noon = hour >= 12 ? 'PM' : 'AM';
-        hour = hour>=12?hour-12:hour;
-        hour = formatFunc(hour);
-        let min = formatFunc(date2.getMinutes());
-        let dateStr = year+'-'+mon+'-'+day+' '+noon +' '+hour+':'+min;
-        return dateStr;
         },
         queryUrlName(){
             let server=Api.QueryUrlName;
