@@ -299,7 +299,7 @@ func QueryURLName(c *gin.Context) {
 
 	termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
 	ctx := context.Background()
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+	searchResult, err := client.Search().Index("logstash-2018.05.10").Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
 	if err != nil {
 		//doSomething

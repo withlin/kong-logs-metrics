@@ -8,7 +8,7 @@
         </Col>
         <Col span="3">
         <Select v-model="model1" style="width:200px">
-        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+        <Option v-for="item in apiList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
         </Col>
         
@@ -174,46 +174,7 @@ export default {
     name: 'visiteVolume',
     data () {
         return {
-                columns1: [
-                    {
-                        title: 'Name',
-                        key: 'name'
-                    },
-                    {
-                        title: 'Age',
-                        key: 'age'
-                    },
-                    {
-                        title: 'Address',
-                        key: 'address'
-                    }
-                ],
-                data1: [
-                    {
-                        name: 'John Brown',
-                        age: 18,
-                        address: 'New York No. 1 Lake Park',
-                        date: '2016-10-03'
-                    },
-                    {
-                        name: 'Jim Green',
-                        age: 24,
-                        address: 'London No. 1 Lake Park',
-                        date: '2016-10-01'
-                    },
-                    {
-                        name: 'Joe Black',
-                        age: 30,
-                        address: 'Sydney No. 1 Lake Park',
-                        date: '2016-10-02'
-                    },
-                    {
-                        name: 'Jon Snow',
-                        age: 26,
-                        address: 'Ottawa No. 2 Lake Park',
-                        date: '2016-10-04'
-                    }
-                ],
+                
             //
             // result:this.handleSubmit()
             // cityList:this.queryUrlName()
@@ -221,7 +182,7 @@ export default {
             shareCount:0,
             agg:true,
             pie:false,
-            cityList: [],
+            apiList: [],
             model1:'',
             animal: 'test',
             totalCount:0,
@@ -324,7 +285,7 @@ export default {
         },
         queryUrlName(){
             let server=Api.QueryUrlName;
-            let cyList=[]
+            let apis=[]
             Axios.get(server).then((res)=>{
                         console.log(res.data);
 
@@ -332,13 +293,13 @@ export default {
                               for (let index = 0; index < res.data.data.length; index++) {
                                 console.log('这里是循环');
                                 console.log(res.data.data[index]);
-                                 cyList.push({
+                                 apis.push({
                                      value:res.data.data[index].key,
                                      label:res.data.data[index].key
                                  })
                                   
                               }
-                              this.cityList=cyList;
+                              this.apiList=apis;
                           }
                       
                            

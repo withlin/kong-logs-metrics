@@ -24,17 +24,17 @@
     <div>
         <Card style="height:100px">
         <Row>
-        <Col span="4">
-        <Button @click="handleSubmit" type="primary" >查询</Button>
+        <Col span="4" offset="2">
+        <Button @click="selectdata" type="primary" >查询</Button>
         </Col>
         <Col span="3">
         <Select v-model="model1" style="width:200px">
-        <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+        <Option v-for="item in apiList" :value="item.value" :key="item.value">{{ item.label }}</Option>
         </Select>
         </Col>
 
         <Col span="4" offset="4">
-        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
+        <DatePicker type="date" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
         </DatePicker>
         </Col>
         </Row>
@@ -65,6 +65,8 @@ export default {
     name: 'showlog',
     data () {
         return {
+            dateValue:'',
+            apiList:[],
             data:[],
             total:200,
             tableSize: 'default',
@@ -138,16 +140,19 @@ export default {
     mounted () {
         this.$nextTick(()=>{
             this.handleMethod();
+            this.queryUrlName();
            
         });
     },
     methods: {
+        selectdata(){
+
+        },
         handleMethod(data){
 
                     let server=Api.ShowLog;
                     //  let server=Api.MixedLineAndBar;
                     let tableData=[];
-                    console.log("=============页码跳转=========");
                     console.log(data);
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1}
@@ -155,7 +160,7 @@ export default {
                     Axios.post(server,data).then((res)=>{
                            
                            if(res.data.message=="ok"){
-                               console.log("=======================================展示日志的数据=======================");
+                            
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {
                                    tableData.push({
@@ -230,6 +235,34 @@ export default {
         let min = formatFunc(date2.getMinutes());
         let dateStr = year+'-'+mon+'-'+day+' '+noon +' '+hour+':'+min;
         return dateStr;
+        },
+        queryUrlName(){
+            let server=Api.QueryUrlName;
+            let apis=[]
+            Axios.get(server).then((res)=>{
+                        console.log(res.data);
+
+                          if(res.data.message=="ok"){
+                              for (let index = 0; index < res.data.data.length; index++) {
+                                 apis.push({
+                                     value:res.data.data[index].key,
+                                     label:res.data.data[index].key
+                                 })
+                                  
+                              }
+                              this.apiList=apis;
+                          }
+                      
+                           
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
+        },
+        getDataValue(value){
+            let test=value.replace("-",".").replace("-",".");
+            this.dateValue=test;
+            console.log(this.dateValue);
         }
     }
 };

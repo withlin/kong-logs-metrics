@@ -112,8 +112,9 @@ var logs Logs
 
 //Page 分页
 type Page struct {
-	PageSize   int `json:"pagesize" binding:"required,numeric"`
-	PageNumber int `json:"pagenumber" binding:"required,numeric"`
+	PageSize   int    `json:"pagesize" binding:"required,numeric"`
+	PageNumber int    `json:"pagenumber" binding:"required,numeric"`
+	DateValue  string `json:"datevalue" binding:"required"`
 }
 
 //ShowLogs 展示日志
@@ -124,15 +125,17 @@ func ShowLogs(c *gin.Context) {
 		panic(err)
 	}
 	defer client.Stop()
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+	// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 
+	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery())
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
 		fmt.Println(page.PageNumber)
 		fmt.Println(page.PageSize)
+		fmt.Println(page)
 		if page.PageNumber > 0 && page.PageSize > 0 {
 
-			searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
+			searchResult, err := client.Search().Index("logstash-2018.05.10").Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 
 			if err != nil {
 				//do Something
@@ -182,7 +185,7 @@ func FindLogDetailByID(c *gin.Context) {
 			query := elastic.NewIdsQuery().Ids(id.ID)
 			fmt.Println(query.Source())
 			ctx := context.Background()
-			searchResult, err := client.Search().Index("logstash-2018.04.25").Type("logs").Query(query).Do(ctx)
+			searchResult, err := client.Search().Index("logstash-2018.05.10").Type("logs").Query(query).Do(ctx)
 			fmt.Println(id.ID)
 
 			buf, err := json.Marshal(searchResult)
