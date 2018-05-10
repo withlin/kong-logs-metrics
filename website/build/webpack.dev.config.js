@@ -16,14 +16,16 @@ module.exports = merge(webpackBaseConfig, {
     devtool: '#source-map',
     devServer: {
         port: 8080,
+        disableHostCheck: true,
+        host: '0.0.0.0',
         proxy: {
           '/api': {
-            // target: 'http://yuanhang.youledi.cn/',
+            target: 'http://192.168.199.17:7777/v1/',
             pathRewrite: {'^/api' : ''},
             changeOrigin: true
           }
         }
-    },
+    },,
     output: {
         publicPath: '/dist/',
         filename: '[name].js',
