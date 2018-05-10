@@ -28,8 +28,8 @@
         <Button @click="selectdata" type="primary" >查询</Button>
         </Col>
         <Col span="3">
-        <Select v-model="model1" style="width:200px">
-        <Option v-for="item in apiList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+        <Select v-model="model1" @on-change="getOptionValue" style="width:200px">
+        <Option v-for="item in apiList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
         </Select>
         </Col>
 
@@ -66,6 +66,9 @@ export default {
     name: 'showlog',
     data () {
         return {
+            pageNumber:1,
+            model1:'',
+            optionValue:'',
             dateValue:'',
             apiList:[],
             data:[],
@@ -135,6 +138,10 @@ export default {
                     {
                         title: 'ID',
                         key: 'id'
+                    },
+                    {
+                        title: '行号',
+                        key: 'hanghao'
                     }
             ]
         }
@@ -147,7 +154,54 @@ export default {
         });
     },
     methods: {
-        selectdata(){
+        selectdata(page){
+            let server=Api.FindLogsByApiName;
+            let data=null;
+            console.log("这里是==========selectdata方法=========================")
+            console.log(page);
+            if (page==1) {
+                      data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
+                        
+                    }else{
+                        data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
+
+                    }
+                    let tableData=[];
+                    Axios.post(server,data).then((res)=>{
+                           
+                           if(res.data.message=="ok"){
+                            
+                               console.log(res.data.data);
+                               var a=1;
+                               res.data.data.hits.forEach(element => {
+                                   let date=new Date(element._source.started_at);
+                                   
+                                   tableData.push({
+                                       "detail":'',
+                                       "uris":element._source.request.uri,
+                                       "methods":element._source.request.method,
+                                       "upstreamurl":element._source.api.upstream_url,
+                                       "name":element._source.api.name,
+                                       "id":element._id,
+                                       "consumer":'',
+                                       "usetime":`${element._source.latencies.request}`,
+                                       "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
+                                       "hanghao":a
+                               });
+                               a++;
+
+                               
+                               });
+                               this.data=tableData;
+                               this.total=res.data.data.total;
+                           }
+
+                            
+                        this.loading=false;    
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
 
         },
         handleMethod(data){
@@ -164,8 +218,10 @@ export default {
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
+                               var a=1;
                                res.data.data.hits.forEach(element => {
                                    let date=new Date(element._source.started_at);
+                                   
                                    tableData.push({
                                        "detail":'',
                                        "uris":element._source.request.uri,
@@ -175,8 +231,10 @@ export default {
                                        "id":element._id,
                                        "consumer":'',
                                        "usetime":`${element._source.latencies.request}`,
-                                       "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss')
+                                       "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
+                                       "hanghao":a
                                });
+                               a++;
 
                                
                                });
@@ -217,6 +275,7 @@ export default {
             // 200 400 From(page.PageNumber).Size(page.PageSize)
             let data={"pagesize":200,"pagenumber":(index-1)*200}
             this.handleMethod(data);
+            this.pageNumber=idnex;
              this.loading=false;
             // console.log(this.current);
         },
@@ -247,7 +306,11 @@ export default {
             let test=value.replace("-",".").replace("-",".");
             this.dateValue=test;
             console.log(this.dateValue);
+        },
+        getOptionValue(value){
+            console.log(this.model1);
         }
+
     }
 };
 </script>

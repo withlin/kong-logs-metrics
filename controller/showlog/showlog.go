@@ -128,6 +128,7 @@ func ShowLogs(c *gin.Context) {
 	// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
 
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery())
+	fmt.Println(query.Source())
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
 		fmt.Println(page.PageNumber)
@@ -208,4 +209,56 @@ func FindLogDetailByID(c *gin.Context) {
 		fmt.Println(err.Error())
 	}
 
+}
+
+//API API
+type API struct {
+	Name       string `json:"name" binding:"required"`
+	Data       string `json:"datevalue" binding:"required`
+	PageSize   int    `json:"pagesize" binding:"required,numeric"`
+	PageNumber int    `json:"pagenumber" binding:"required,numeric"`
+}
+
+//FindLogByAPINameAndDate FindLogByAPINameAndDate
+func FindLogByAPINameAndDate(c *gin.Context) {
+
+	api := new(API)
+	if err := c.ShouldBindJSON(&api); err == nil {
+		fmt.Println(api.Name)
+		fmt.Println(api.Data)
+		if api.Name != "" && api.Data != "" {
+			client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+			if err != nil {
+				panic(err)
+			}
+			defer client.Stop()
+			// fmt.Println(query.Source())
+			// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+			// query := elastic.NewTermQuery(api.Name, api.Name)
+			query := elastic.NewMatchQuery("api.uris", api.Name)
+			macth := elastic.NewBoolQuery().Must(query)
+			fmt.Println(macth.Source())
+			ctx := context.Background()
+			searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).Do(ctx)
+
+			buf, err := json.Marshal(searchResult)
+			if err != nil {
+				//doSomthing
+			}
+			errCode := json.Unmarshal(buf, &logs)
+
+			if errCode != nil {
+				//doSometing
+			}
+			test := logs.Hits
+
+			// c.IndentedJSON()
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+
+		} else {
+			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "..."})
+		}
+	} else {
+		fmt.Println(err.Error())
+	}
 }

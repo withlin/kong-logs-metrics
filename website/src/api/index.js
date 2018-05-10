@@ -15,7 +15,8 @@ const Login={
     QueryUrlName:serverAddress+'/test/queryUrlName',
     PieChart:serverAddress +'/test/PieChart',
     ShowLog:serverAddress+'/showlogs',
-    ShowLogsDetail:serverAddress+"/findlogdetailbyid"
+    ShowLogsDetail:serverAddress+"/findlogdetailbyid",
+    FindLogsByApiName:serverAddress+"/findlogsbyapiname"
     
 
 }
