@@ -17,7 +17,7 @@ module.exports = merge(webpackBaseConfig, {
     devServer: {
         port: 8080,
         disableHostCheck: true,
-        host: '0.0.0.0',
+        // host: '0.0.0.0',
         proxy: {
           '/api': {
             target: 'http://192.168.199.17:7777/v1/',
@@ -25,7 +25,7 @@ module.exports = merge(webpackBaseConfig, {
             changeOrigin: true
           }
         }
-    },,
+    },
     output: {
         publicPath: '/dist/',
         filename: '[name].js',

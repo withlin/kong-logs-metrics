@@ -60,6 +60,7 @@ import echarts from 'echarts';
 import Axios from 'axios';
 import Api  from '@/api';
 
+
 const option = {
                 tooltip: {
         trigger: 'axis',

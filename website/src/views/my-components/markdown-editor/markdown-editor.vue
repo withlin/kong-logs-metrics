@@ -62,6 +62,7 @@
 import Axios from 'axios';
 import Api  from '@/api';
 import moment from 'moment';
+import _  from 'lodash';
 export default {
     name: 'showlog',
     data () {
@@ -242,6 +243,7 @@ export default {
 
                                
                                });
+                              tableData=_.orderBy(tableData,['starttime'],['desc'])
                                this.data=tableData;
                                this.total=res.data.data.total;
                            }
