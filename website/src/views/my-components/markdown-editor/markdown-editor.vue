@@ -14,7 +14,7 @@
     // background-color:transparent;  
     // scrollbar-arrow-color:yellow;  
     // scrollbar-base-color:lightsalmon;  
-    overflow: hidden;
+    // overflow: hidden;
     background-color: #e9e9e9;  
     height: 1000px;  
     width: 500px;
@@ -99,7 +99,7 @@ export default {
                                     on: {
                                         click: () => {
                                             
-                                           this.loadLogsDetail(params.row.id);
+                                           this.loadLogsDetail(params.row.id,params.row.indexName);
                                            this.logdetail=true;
                                         }
                                     }
@@ -141,8 +141,8 @@ export default {
                         key: 'id'
                     },
                     {
-                        title: '行号',
-                        key: 'hanghao'
+                        title: '索引名称',
+                        key: 'indexName'
                     }
             ]
         }
@@ -223,7 +223,6 @@ export default {
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
-                               var a=1;
                                res.data.data.hits.forEach(element => {
                                    let date=new Date(element._source.started_at);
                                    
@@ -237,9 +236,8 @@ export default {
                                        "consumer":'',
                                        "usetime":`${element._source.latencies.request}`,
                                        "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
-                                       "hanghao":a
+                                       "indexName":element._index
                                });
-                               a++;
 
                                
                                });
@@ -255,18 +253,19 @@ export default {
                         console.log(err);
                     });
         },
-        loadLogsDetail(id){
+        loadLogsDetail(id,indexName){
                     
                     let server=Api.ShowLogsDetail;
                     let tableData=[];
-                    let data={'ID':`${id}`};
+                    let data={'ID':`${id}`,'indexname':indexName};
                     console.log("===========id为============");
                     console.log(id);
 
                     Axios.post(server,data).then((res)=>{
                          
                            if(res.data.message=="ok"){
-                             this.showlogsdetail=res.data.data;
+                             this.showlogsdetail=res.data.data[0]._source;
+                             console.log(res.data.data[0]._source);
                            }
 
                             

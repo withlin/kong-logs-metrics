@@ -138,7 +138,7 @@ func ShowLogs(c *gin.Context) {
 
 			searchResult, err := client.Search().Index(page.DateValue).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 
-			if err != nil { 
+			if err != nil {
 				//do Something
 				fmt.Println("======================出错啦=====================")
 			}
@@ -167,16 +167,17 @@ func ShowLogs(c *gin.Context) {
 
 //ID ID
 type ID struct {
-	ID string `json:"id" binding:"required"`
+	ID        string `json:"id" binding:"required"`
+	IndexName string `json:"indexname" binding:"required"`
 }
 
 //FindLogDetailByID 通过索引的ID 查找某个日志的详情
 func FindLogDetailByID(c *gin.Context) {
 
-	var id ID
+	id := new(ID)
 	if err := c.ShouldBindJSON(&id); err == nil {
 
-		if id.ID != "" {
+		if id.ID != "" && id.IndexName != "" {
 			client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 			if err != nil {
 				panic(err)
@@ -186,7 +187,7 @@ func FindLogDetailByID(c *gin.Context) {
 			query := elastic.NewIdsQuery().Ids(id.ID)
 			fmt.Println(query.Source())
 			ctx := context.Background()
-			searchResult, err := client.Search().Index("logstash-2018.05.10").Type("logs").Query(query).Do(ctx)
+			searchResult, err := client.Search().Index(id.IndexName).Type("logs").Query(query).Do(ctx)
 			fmt.Println(id.ID)
 
 			buf, err := json.Marshal(searchResult)
@@ -198,8 +199,10 @@ func FindLogDetailByID(c *gin.Context) {
 			if errCode != nil {
 				//doSometing
 			}
-			test := logs.Hits.Hits[0].Source
+			// test := logs.Hits.Hits
 			// c.IndentedJSON()
+			a := searchResult.Hits
+			test := a.Hits
 			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
 
 		} else {
