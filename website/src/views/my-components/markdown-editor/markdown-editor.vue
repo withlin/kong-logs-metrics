@@ -235,7 +235,7 @@ export default {
                                        "id":element._id,
                                        "consumer":'',
                                        "usetime":`${element._source.latencies.request}`,
-                                       "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
+                                       "starttime":moment.utc(element._source.started_at).local().format('YYYY-MM-DD HH:mm:ss'),
                                        "indexName":element._index
                                });
 
