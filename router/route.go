@@ -16,8 +16,8 @@ func Route(router *gin.Engine) {
 	api := router.Group(apiPrefix)
 	{
 		api.GET("/test", agg.FindAggMetrics)
-		api.GET("/test/PieChart", agg.PieChar)
-		api.GET("/test/queryUrlName", agg.QueryURLName)
+		api.GET("/test/piechart", agg.PieChar)
+		api.GET("/test/queryurlname", agg.QueryURLName)
 		api.POST("/checklogin", login.PostCheckLogin)
 		api.POST("/showlogs", showlog.ShowLogs)
 		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
