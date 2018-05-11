@@ -209,9 +209,13 @@ export default {
                     let server=Api.ShowLog;
                     //  let server=Api.MixedLineAndBar;
                     let tableData=[];
+                    console.log("handleMethod时间啊啊===================");
                     console.log(data);
+                   let dateTimeNow= moment().format('YYYY.MM.DD');
+                   console.log(dateTimeNow);
                     if (data===undefined) {
-                        data={"pagesize":200,"pagenumber":1}
+                        let str="2018.05.11";
+                        data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${str}`}
                     }
                     Axios.post(server,data).then((res)=>{
                            

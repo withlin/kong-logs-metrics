@@ -133,12 +133,12 @@ func ShowLogs(c *gin.Context) {
 	if err := c.ShouldBindJSON(&page); err == nil {
 		fmt.Println(page.PageNumber)
 		fmt.Println(page.PageSize)
-		fmt.Println(page)
+		fmt.Println(page.DateValue)
 		if page.PageNumber > 0 && page.PageSize > 0 {
 
-			searchResult, err := client.Search().Index("logstash-2018.05.10").Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
+			searchResult, err := client.Search().Index(page.DateValue).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 
-			if err != nil {
+			if err != nil { 
 				//do Something
 				fmt.Println("======================出错啦=====================")
 			}
