@@ -173,7 +173,6 @@ export default {
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
-                               var a=1;
                                res.data.data.hits.forEach(element => {
                                    let date=new Date(element._source.started_at);
                                    
@@ -187,12 +186,12 @@ export default {
                                        "consumer":'',
                                        "usetime":`${element._source.latencies.request}`,
                                        "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
-                                       "hanghao":a
+                                       "indexName":element._index
                                });
-                               a++;
 
                                
                                });
+                               tableData=_.orderBy(tableData,['starttime'],['desc'])
                                this.data=tableData;
                                this.total=res.data.data.total;
                            }
@@ -215,7 +214,6 @@ export default {
                    let dateTimeNow= moment().format('YYYY.MM.DD');
                    console.log(dateTimeNow);
                     if (data===undefined) {
-                        let str="2018.05.11";
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
                     }
                     Axios.post(server,data).then((res)=>{
