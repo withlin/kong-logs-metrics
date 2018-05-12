@@ -1,5 +1,5 @@
 <style lang="less">
-    @import './login.less';
+@import './login.less';
 </style>
 
 <template>
@@ -14,16 +14,16 @@
                     <Form ref="loginForm" :model="form" :rules="rules">
                         <FormItem prop="userName">
                             <Input v-model="form.userName" placeholder="请输入用户名">
-                                <span slot="prepend">
-                                    <Icon :size="16" type="person"></Icon>
-                                </span>
+                            <span slot="prepend">
+                                <Icon :size="16" type="person"></Icon>
+                            </span>
                             </Input>
                         </FormItem>
                         <FormItem prop="password">
                             <Input type="password" v-model="form.password" placeholder="请输入密码">
-                                <span slot="prepend">
-                                    <Icon :size="14" type="locked"></Icon>
-                                </span>
+                            <span slot="prepend">
+                                <Icon :size="14" type="locked"></Icon>
+                            </span>
                             </Input>
                         </FormItem>
                         <FormItem>
@@ -88,17 +88,38 @@ export default {
                         console.log(err);
                          this.$router.push('/home');
                     });
+                    if (food === 'pizza')
+{ 
+    alert('Pizza ;-)');  
+}
+else
+{  
+    alert('Not pizza ;-(');
+}
 
-                    // if (this.form.userName === 'iview_admin') {
-                    //     Cookies.set('access', 0);
-                    // } else {
-                    //     Cookies.set('access', 1);
-                    // }
-                    // this.$router.push({
-                    //     name: 'home_index'
-                    // });
-                }
-            });
+function foo(items) {
+  return items
+    .filter(item => item.checked)
+    .map(item => item.value)
+  ;
+}
+
+const food = [
+  'pizza',
+  'burger',
+  'pasta',
+]
+
+        //  if (this.form.userName === 'iview_admin') {
+        //                 Cookies.set('access', 0);
+        //             } else {
+        //                 Cookies.set('access', 1);
+        //             }
+        //             this.$router.push({
+        //                 name: 'home_index'
+        //             });
+        //         }
+        //     });
         }
     }
 };
