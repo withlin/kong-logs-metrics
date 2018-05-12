@@ -216,7 +216,7 @@ export default {
                    console.log(dateTimeNow);
                     if (data===undefined) {
                         let str="2018.05.11";
-                        data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${str}`}
+                        data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
                     }
                     Axios.post(server,data).then((res)=>{
                            
