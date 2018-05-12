@@ -235,17 +235,14 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 				panic(err)
 			}
 			defer client.Stop()
-			// fmt.Println(query.Source())
-			// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-			// query := elastic.NewTermQuery(api.Name, api.Name)
-			
-			query := elastic.NewMatchPhraseQuery("request.uri", api.Name)
-			macth := elastic.NewBoolQuery().Must(query)
-			query1 := elastic.NewTermQuery("request.uri", api.Name)
-			fmt.Println(macth.Source())
-			fmt.Println(query1.Source())
+
+			boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", api.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+			macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
 			ctx := context.Background()
-			searchResult, err := client.Search().Index(api.Data).Type("logs").Query(query1).Do(ctx)
+
+			searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
 
 			buf, err := json.Marshal(searchResult)
 			if err != nil {
