@@ -169,12 +169,14 @@ export default {
 
                     }
                     let tableData=[];
-                    
-                    if (this.model1 == "") {
-                        console.log("=============进来了==============");
+
+                    if(this.dateValue !=""){
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
-                        // this.changePage(1);
+                    }
+                    else if(this.dateValue=="" || this.model1 == ""){
+                        let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
+                        this.handleMethod(test);
                     }else{
                         Axios.post(server,data).then((res)=>{
                            
@@ -311,10 +313,11 @@ export default {
                           }else{
                               console.log(res.data.data);
                               this.$Notice.warning({
-                                         duration:3,
+                                         duration:6,
                                          title: '警告',
                                          desc:res.data.data
                               });
+                              this.apiList=[];
                           }
                       
                            
@@ -332,7 +335,6 @@ export default {
         getOptionValue(value){
             console.log(this.model1);
         }
-
     }
 };
 </script>
