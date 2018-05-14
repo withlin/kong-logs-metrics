@@ -22,15 +22,15 @@
       <Row>
            <div style="height:25px;"></div>
            <RadioGroup v-model="animal">
-            <Col span="1" >
+            <Col span="1">
            <span @click="handleSubmit"> <Radio label="按每天24小时聚合"></Radio> </span>
             </Col>
-            <Col span="1" offset="12">
+            <Col span="3" offset="15">
            <span @click="showPieChart"> <Radio label="按照范围聚合"></Radio> </span>
            </Col>
-           <Col span="1" offset="9">
+           <!-- <Col span="1" offset="9">
            <Radio label="Heap Map聚合"></Radio>
-           </Col>
+           </Col> -->
            </RadioGroup>
            <Col span="5" offset="">
            <label>总共聚合到{{totalCount}}条记录和{{shareCount}}个分片</label>

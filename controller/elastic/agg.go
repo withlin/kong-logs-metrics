@@ -256,7 +256,7 @@ func PieChar(c *gin.Context) {
 
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddUnboundedFrom(r10)
+				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddUnboundedFrom(10000000000)
 				searchResult, err := client.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err != nil {
