@@ -86,7 +86,7 @@ const option = {
     xAxis: [
         {
             type: 'category',
-            data: ['1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时','24时'],
+            data: ['0时','1时','2时','3时','4时','5时','6时','7时','8时','9时','10时','11时','12时','13时','14时','15时','16时','17时','18时','19时','20时','21时','22时','23时'],
             axisPointer: {
                 type: 'none'
             }
@@ -120,6 +120,7 @@ const option = {
             name:'最大耗时(ms)',
             type:'bar',
             barWidth:45,
+            yAxisIndex:0,
             itemStyle:{normal:{color:'#ff9966'}},
             data:[]
         },
@@ -127,20 +128,21 @@ const option = {
             name:'最小耗时(ms)',
             type:'line',
             // barWidth:40,
+            yAxisIndex:0,
             data:[]
         }
         ,
         {
             name:'请求次数',
             type:'line',
-            yAxisIndex: 1,
+            yAxisIndex:0,
             data:[]
         }
         ,
         {
             name:'平均耗时(ms)',
             type:'line',
-            yAxisIndex: 1,
+            yAxisIndex:0,
             data:[]
         }
     ]
@@ -252,7 +254,8 @@ export default {
                     Axios.post(server,data).then((res)=>{
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
-
+                        console.log("=============================");
+                        console.log(res.data.data);
                         let tabledata=[];
                         if(res.data.message=="ok"){
                             setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
@@ -278,10 +281,10 @@ export default {
                            });
                              }, 0 );
                              for(let i=0; i<res.data.data.avg.length; i++){
-                                 let timeHour=`${i+1}时`;
+                                //  let timeHour=`${i+1}时`;
                                  console.log(name);
                                  tabledata.push({
-                                     time:timeHour,
+                                     time:`${i}时`,
                                      maxTime:res.data.data.max[i],
                                      minTime:res.data.data.min[i],
                                      avgTime:res.data.data.avg[i],
@@ -332,16 +335,20 @@ export default {
                         console.log(err);
                     });
         },
-        showPieChart(){
-             
+        showPieChart(){ 
                       this.agg=false;
                       this.pie=true;
                       let rangechart = echarts.init(document.getElementById('range_pie_chart'));
                       rangechart.setOption(optionPie);
             
-                   let server=Api.PieChart;
-                    //  let server=Api.MixedLineAndBar;
-                    Axios.get(server).then((res)=>{
+                     let server=Api.PieChart;
+                     let data=null;
+                    if (this.model1==""&& this.dateValue!=""){
+                        data={"logstastname":`logstash-${this.dateValue}`}
+                    }else{
+                         data={"logstastname":`logstash-${this.dateValue}`,"name":this.model1}
+                    }
+                    Axios.post(server,data).then((res)=>{
                            if(res.data.message=="ok")
                             rangechart.setOption({
                                  series : [

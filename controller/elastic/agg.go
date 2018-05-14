@@ -80,8 +80,7 @@ func FindAggMetrics(c *gin.Context) {
 
 	if err := c.ShouldBindJSON(&loadaggchart); err == nil {
 		if loadaggchart.LogstashName != "" {
-			// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-			// sou, err := query.Source()
+
 			fmt.Println(loadaggchart.LogstashName)
 			ctx := context.Background()
 
@@ -90,7 +89,6 @@ func FindAggMetrics(c *gin.Context) {
 
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-				// searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
 				avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
 				maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
 				minAgg := elastic.NewMinAggregation().Field("latencies.request")
@@ -232,77 +230,138 @@ var pieMetrics PieMetrics
 
 // PieChar 圆表查询
 func PieChar(c *gin.Context) {
-
+	piechartpost := new(LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
 	}
 	defer client.Stop()
 
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-
-	r1 := 30
-	r2 := 90
-	r3 := 120
-	r4 := 150
-	r5 := 180
-	r6 := 210
-	r7 := 240
-	r8 := 270
-	r9 := 300
-	r10 := 500
+	r1 := 2000
+	r2 := 4000
+	r3 := 6000
+	r4 := 8000
+	r5 := 10000
+	r6 := 12000
+	r7 := 14000
+	r8 := 16000
+	r9 := 18000
+	r10 := 20000
 	ctx := context.Background()
-	rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10)
-	// tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
+	if err := c.ShouldBindJSON(&piechartpost); err == nil {
 
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+		if piechartpost.LogstashName != "" {
+			if piechartpost.Name != "" {
+				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", piechartpost.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-	if err != nil {
-		//do something
-		fmt.Println("发生错误了==================" + err.Error())
-	}
+				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-	buf, err := json.Marshal(searchResult)
-	if err != nil {
-		//doSomthing
-	}
-	errCode := json.Unmarshal(buf, &pieMetrics)
-	if errCode != nil {
-		fmt.Println(errCode)
-	}
+				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddUnboundedFrom(r10)
+				searchResult, err := client.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
-	agg := pieMetrics.Aggregations
-	rAgg := agg.RangeAgg
-	pieBuckets := rAgg.Buckets
-	ms := "ms"
+				if err != nil {
+					//do something
+					fmt.Println("发生错误了==================")
+				}
 
-	var item PieResult
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					//doSomthing
+				}
+				errCode := json.Unmarshal(buf, &pieMetrics)
+				if errCode != nil {
+					fmt.Println(errCode)
+				}
 
-	pieResults := []PieResult{}
-	// fmt.Println(PieBuckets[1].DocCount)
-	for _, elem := range pieBuckets {
+				agg := pieMetrics.Aggregations
+				rAgg := agg.RangeAgg
+				pieBuckets := rAgg.Buckets
+				ms := "ms"
 
-		if elem.From == 0 {
-			// fmt.Println(index)
-			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
-			item.Name = to + ms
-			item.Value = elem.DocCount
-			pieResults = append(pieResults, item)
+				var item PieResult
 
-		} else {
-			// fmt.Println(index)
-			to := strconv.FormatFloat(elem.To, 'f', 0, 64)
-			from := strconv.FormatFloat(elem.From, 'f', 0, 64)
-			item.Name = from + ms + "-" + to + ms
-			item.Value = elem.DocCount
-			pieResults = append(pieResults, item)
+				pieResults := []PieResult{}
+				// fmt.Println(PieBuckets[1].DocCount)
+				for _, elem := range pieBuckets {
+
+					if elem.From == 0 {
+						// fmt.Println(index)
+						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+						item.Name = to + ms
+						item.Value = elem.DocCount
+						pieResults = append(pieResults, item)
+
+					} else {
+						// fmt.Println(index)
+						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+						from := strconv.FormatFloat(elem.From, 'f', 0, 64)
+						item.Name = from + ms + "-" + to + ms
+						item.Value = elem.DocCount
+						pieResults = append(pieResults, item)
+
+					}
+
+				}
+
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
+				// c.JSON(http.StatusOK, searchResult)
+
+			} else {
+				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddRange(r10, nil)
+				// tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
+
+				searchResult, err := client.Search().Index(piechartpost.LogstashName).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+
+				if err != nil {
+					//do something
+					fmt.Println("发生错误了==================" + err.Error())
+				}
+
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					//doSomthing
+				}
+				errCode := json.Unmarshal(buf, &pieMetrics)
+				if errCode != nil {
+					fmt.Println(errCode)
+				}
+
+				agg := pieMetrics.Aggregations
+				rAgg := agg.RangeAgg
+				pieBuckets := rAgg.Buckets
+				ms := "ms"
+
+				var item PieResult
+
+				pieResults := []PieResult{}
+				// fmt.Println(PieBuckets[1].DocCount)
+				for _, elem := range pieBuckets {
+
+					if elem.From == 0 {
+						// fmt.Println(index)
+						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+						item.Name = to + ms
+						item.Value = elem.DocCount
+						pieResults = append(pieResults, item)
+
+					} else {
+						// fmt.Println(index)
+						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+						from := strconv.FormatFloat(elem.From, 'f', 0, 64)
+						item.Name = from + ms + "-" + to + ms
+						item.Value = elem.DocCount
+						pieResults = append(pieResults, item)
+
+					}
+
+				}
+
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
+				// c.JSON(http.StatusOK, searchResult)
+			}
 
 		}
-
 	}
-
-	c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
-	// c.JSON(http.StatusOK, searchResult)
 
 }
 
