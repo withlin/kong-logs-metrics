@@ -7,14 +7,14 @@
         <Button @click="handleSubmit" type="primary" >查询</Button>
         </Col>
         <Col span="3">
-        <Select v-model="model1" style="width:200px">
-        <Option v-for="item in apiList" :value="item.value" :key="item.value">{{ item.label }}</Option>
+        <Select v-model="model1" @on-change="getOptionValue" style="width:200px" filterable clearable>
+        <Option v-for="item in apiList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
         </Select>
         </Col>
         
 
         <Col span="4" offset="4">
-        <DatePicker :value="value2" format="yyyy/MM/dd" type="daterange" placement="bottom-end" placeholder="选择起始日期" style="width: 200px">
+         <DatePicker type="date" :value="dateValue" @on-change="getDataValue" placeholder="选择日期" style="width: 200px"></DatePicker>
         </DatePicker>
         </Col>
         
@@ -40,7 +40,7 @@
          <div style="height:50px;"></div>
          <Card>
         
-        <div  v-show="agg" style="width:1100px;height:700px;"  id="visite_volume_con" ></div>
+        <div  v-show="agg" style="width:auto;height:700px;"  id="visite_volume_con" ></div>
         <div v-show="pie" style="width:1100px;height:700px;"  id="range_pie_chart"  ></div> 
         
         <!-- style="width:1100px;height:700px;" -->
@@ -59,6 +59,7 @@
 import echarts from 'echarts';
 import Axios from 'axios';
 import Api  from '@/api';
+import moment from 'moment';
 
 
 const option = {
@@ -94,20 +95,20 @@ const option = {
     yAxis: [
         {
             type: 'value',
-            name: '最大耗时',
+            name: '最大耗时(ms)',
             min: 0,
-            max: 50000,
-            interval: 5000,
+            max: 120000,
+            interval: 20000,
             axisLabel: {
                 formatter: '{value}'
             }
         },
         {
             type: 'value',
-            name: '最小耗时',
+            name: '最小耗时(ms)',
             min: 0,
-            max: 2000,
-            interval: 200,
+            max: 120000,
+            interval: 20000,
             axisLabel: {
                 formatter: '{value}'
             }
@@ -118,7 +119,7 @@ const option = {
         {
             name:'最大耗时(ms)',
             type:'bar',
-            barWidth:35,
+            barWidth:45,
             itemStyle:{normal:{color:'#ff9966'}},
             data:[]
         },
@@ -127,9 +128,17 @@ const option = {
             type:'line',
             // barWidth:40,
             data:[]
-        },
+        }
+        ,
         {
-            name:'平均耗时(ms)',
+            name:'请求次数',
+            type:'line',
+            yAxisIndex: 1,
+            data:[]
+        }
+        ,
+        {
+            name:'平均耗时',
             type:'line',
             yAxisIndex: 1,
             data:[]
@@ -175,10 +184,8 @@ export default {
     name: 'visiteVolume',
     data () {
         return {
-                
-            //
-            // result:this.handleSubmit()
-            // cityList:this.queryUrlName()
+            model1:'',
+            dateValue:'',
             loading:true,
             shareCount:0,
             agg:true,
@@ -218,6 +225,7 @@ export default {
     },
     mounted () {
         this.$nextTick(() => {
+            this.dateValue=moment().format('YYYY.MM.DD');
             this.handleSubmit();
             this.queryUrlName();
             // this.showPieChart();
@@ -236,8 +244,9 @@ export default {
             //      visiteVolume.resize();
             //    });
                     let server=Api.MixedLineAndBar;
-                    
-                    Axios.get(server).then((res)=>{
+                    let data={"logstastname":`logstash-${this.dateValue}`}
+                    Axios.post(server,data).then((res)=>{
+                        console.log("这是=====================handleSubmit方法=====================");
                         console.log(res.data);
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
@@ -254,9 +263,14 @@ export default {
                                },
                                {
                                 data: res.data.data.min
-                               },
+                               }
+                               ,
                                {
-                                data: res.data.data.avg
+                                data: res.data.data.count
+                               }
+                               ,
+                               {
+                                   data:res.data.data.avg
                                }
                             ]
                            });
@@ -287,13 +301,12 @@ export default {
         queryUrlName(){
             let server=Api.QueryUrlName;
             let apis=[]
-            Axios.get(server).then((res)=>{
+            let data={"logstastname":`logstash-${this.dateValue}`}
+            Axios.post(server,data).then((res)=>{
                         console.log(res.data);
 
                           if(res.data.message=="ok"){
                               for (let index = 0; index < res.data.data.length; index++) {
-                                console.log('这里是循环');
-                                console.log(res.data.data[index]);
                                  apis.push({
                                      value:res.data.data[index].key,
                                      label:res.data.data[index].key
@@ -301,6 +314,14 @@ export default {
                                   
                               }
                               this.apiList=apis;
+                          }else{
+                              console.log(res.data.data);
+                              this.$Notice.warning({
+                                         duration:6,
+                                         title: '警告',
+                                         desc:res.data.data
+                              });
+                              this.apiList=[];
                           }
                       
                            
@@ -331,6 +352,15 @@ export default {
                         this.$Message.error(err.message);
                         console.log(err);
                     });
+        },
+        getDataValue(value){
+            let test=value.replace("-",".").replace("-",".");
+            this.dateValue=test;
+            console.log(this.dateValue);
+            this.queryUrlName();
+        },
+        getOptionValue(value){
+
         }
     }
 };

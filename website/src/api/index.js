@@ -11,7 +11,7 @@ let serverAddress='http://localhost:7777/v1/api';
 const Login={
     //检查检查用户是否登录
     CheckLogin:serverAddress+'/checklogin',
-    MixedLineAndBar:serverAddress+'/test',
+    MixedLineAndBar:serverAddress+'/findaggmetrics',
     QueryUrlName:serverAddress+'/test/queryurlname',
     PieChart:serverAddress +'/test/piechart',
     ShowLog:serverAddress+'/showlogs',

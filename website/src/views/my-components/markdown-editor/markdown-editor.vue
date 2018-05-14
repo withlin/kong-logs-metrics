@@ -149,7 +149,7 @@ export default {
     },
     mounted () {
         this.$nextTick(()=>{
-            this.dateValue=moment().format('YYYY.MM.DD')
+            this.dateValue=moment().format('YYYY.MM.DD');
             this.handleMethod();
             this.queryUrlName();         
         });

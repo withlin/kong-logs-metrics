@@ -63,47 +63,58 @@ type AggResult struct {
 	ShareTotalCount int         `json:"shareTotalCount" binding:"required"`
 }
 
+//LoadAggChart post请求过来的数据
+type LoadAggChart struct {
+	LogstashName string `json:"logstastname" binding:"required`
+}
+
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
 func FindAggMetrics(c *gin.Context) {
-
+	loadaggchart := new(LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
 	}
 	defer client.Stop()
-	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
-	// sou, err := query.Source()
-	ctx := context.Background()
-	avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
-	maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
-	minAgg := elastic.NewMinAggregation().Field("latencies.request")
-	dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-	searchResult, err := client.Search().Index("logstash-2018.04.25").Query(query).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+	if err := c.ShouldBindJSON(&loadaggchart); err == nil {
+		if loadaggchart.LogstashName != "" {
+			// query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery()).Filter(elastic.NewRangeQuery("started_at").Gte("1524585600000").Lte("1524671999999").Format("epoch_millis"))
+			// sou, err := query.Source()
+			fmt.Println(loadaggchart.LogstashName)
+			ctx := context.Background()
+			avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
+			maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
+			minAgg := elastic.NewMinAggregation().Field("latencies.request")
+			dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-	if err != nil {
-		//doSomething
+			searchResult, err := client.Search().Index(loadaggchart.LogstashName).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+
+			if err != nil {
+				//doSomething
+			}
+			buf, err := json.Marshal(searchResult)
+			if err != nil {
+				//doSomthing
+			}
+			errCode := json.Unmarshal(buf, &aggMetrics)
+
+			if errCode != nil {
+				//doSometing
+			}
+
+			aggResult := aggMetrics.Aggregations.DataAggs.Buckets
+
+			result, err := ConvertMap(aggResult)
+
+			if err != nil {
+				c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
+			}
+
+			// c.JSON(200, bbb)
+			c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
+		}
 	}
-	buf, err := json.Marshal(searchResult)
-	if err != nil {
-		//doSomthing
-	}
-	errCode := json.Unmarshal(buf, &aggMetrics)
-
-	if errCode != nil {
-		//doSometing
-	}
-
-	aggResult := aggMetrics.Aggregations.DataAggs.Buckets
-
-	result, err := ConvertMap(aggResult)
-
-	if err != nil {
-		c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
-	}
-
-	// c.JSON(200, bbb)
-	c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
 
 }
 
