@@ -229,6 +229,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 	if err := c.ShouldBindJSON(&api); err == nil {
 		fmt.Println(api.Name)
 		fmt.Println(api.Data)
+
 		if api.Name != "" && api.Data != "" {
 			client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 			if err != nil {
@@ -236,27 +237,32 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 			}
 			defer client.Stop()
 
-			boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", api.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
-
-			macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
-
 			ctx := context.Background()
 
-			searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
+			res, _ := client.IndexExists(api.Data).Do(ctx)
+			if res {
+				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", api.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-			buf, err := json.Marshal(searchResult)
-			if err != nil {
-				//doSomthing
+				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+				searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
+
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					//doSomthing
+				}
+				errCode := json.Unmarshal(buf, &logs)
+
+				if errCode != nil {
+					//doSometing
+				}
+				test := logs.Hits
+
+				// c.IndentedJSON()
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+			} else {
+				c.JSON(http.StatusOK, gin.H{"message": "false", "data": "当前日期没有数据，请选择其他日期"})
 			}
-			errCode := json.Unmarshal(buf, &logs)
-
-			if errCode != nil {
-				//doSometing
-			}
-			test := logs.Hits
-
-			// c.IndentedJSON()
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
 
 		} else {
 			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "..."})

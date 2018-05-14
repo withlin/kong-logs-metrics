@@ -149,10 +149,9 @@ export default {
     },
     mounted () {
         this.$nextTick(()=>{
-            this.handleMethod();
-            this.queryUrlName();
             this.dateValue=moment().format('YYYY.MM.DD')
-           
+            this.handleMethod();
+            this.queryUrlName();         
         });
     },
     methods: {
@@ -296,7 +295,8 @@ export default {
         queryUrlName(){
             let server=Api.QueryUrlName;
             let apis=[]
-            Axios.get(server).then((res)=>{
+            let data={"logstastname":`logstash-${this.dateValue}`}
+            Axios.post(server,data).then((res)=>{
                         console.log(res.data);
 
                           if(res.data.message=="ok"){
@@ -308,6 +308,13 @@ export default {
                                   
                               }
                               this.apiList=apis;
+                          }else{
+                              console.log(res.data.data);
+                              this.$Notice.warning({
+                                         duration:3,
+                                         title: '警告',
+                                         desc:res.data.data
+                              });
                           }
                       
                            
@@ -320,6 +327,7 @@ export default {
             let test=value.replace("-",".").replace("-",".");
             this.dateValue=test;
             console.log(this.dateValue);
+            this.queryUrlName();
         },
         getOptionValue(value){
             console.log(this.model1);
