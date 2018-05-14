@@ -34,7 +34,7 @@
         </Col>
 
         <Col span="4" offset="4">
-        <DatePicker type="date" :value="valuedate" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
+        <DatePicker type="date" :value="dateValue" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
         </DatePicker>
         </Col>
         </Row>
@@ -67,7 +67,6 @@ export default {
     name: 'showlog',
     data () {
         return {
-            valuedate:'',
             pageNumber:1,
             model1:'',
             optionValue:'',
@@ -152,7 +151,7 @@ export default {
         this.$nextTick(()=>{
             this.handleMethod();
             this.queryUrlName();
-            this.valuedate=moment().format('YYYY-MM-DD')
+            this.dateValue=moment().format('YYYY.MM.DD')
            
         });
     },
