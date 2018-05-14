@@ -28,13 +28,13 @@
         <Button @click="selectdata" type="primary" >查询</Button>
         </Col>
         <Col span="3">
-        <Select v-model="model1" @on-change="getOptionValue" style="width:200px">
+        <Select v-model="model1" @on-change="getOptionValue" style="width:200px" filterable clearable>
         <Option v-for="item in apiList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
         </Select>
         </Col>
 
         <Col span="4" offset="4">
-        <DatePicker type="date" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
+        <DatePicker type="date" :value="valuedate" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
         </DatePicker>
         </Col>
         </Row>
@@ -67,6 +67,7 @@ export default {
     name: 'showlog',
     data () {
         return {
+            valuedate:'',
             pageNumber:1,
             model1:'',
             optionValue:'',
@@ -151,6 +152,7 @@ export default {
         this.$nextTick(()=>{
             this.handleMethod();
             this.queryUrlName();
+            this.valuedate=moment().format('YYYY-MM-DD')
            
         });
     },
@@ -159,6 +161,7 @@ export default {
             let server=Api.FindLogsByApiName;
             let data=null;
             console.log("这里是==========selectdata方法=========================")
+            console.log(this.model1);
             console.log(page);
             if (page==1) {
                       data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
@@ -168,7 +171,14 @@ export default {
 
                     }
                     let tableData=[];
-                    Axios.post(server,data).then((res)=>{
+                    
+                    if (this.model1 == "") {
+                        console.log("=============进来了==============");
+                        let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
+                        this.handleMethod(test);
+                        // this.changePage(1);
+                    }else{
+                        Axios.post(server,data).then((res)=>{
                            
                            if(res.data.message=="ok"){
                             
@@ -202,6 +212,8 @@ export default {
                         this.$Message.error(err.message);
                         console.log(err);
                     });
+                    }
+                    
 
         },
         handleMethod(data){
@@ -211,8 +223,8 @@ export default {
                     let tableData=[];
                     console.log("handleMethod时间啊啊===================");
                     console.log(data);
-                   let dateTimeNow= moment().format('YYYY.MM.DD');
-                   console.log(dateTimeNow);
+                    let dateTimeNow= moment().format('YYYY.MM.DD');
+                    console.log(dateTimeNow);
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
                     }
