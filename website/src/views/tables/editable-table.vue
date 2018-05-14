@@ -81,7 +81,7 @@ const option = {
         }
     },
     legend: {
-        data:['最小耗时','平均耗时','最大耗时']
+        data:['最小耗时(ms)','平均耗时(ms)','最大耗时(ms)','请求次数']
     },
     xAxis: [
         {
@@ -97,8 +97,8 @@ const option = {
             type: 'value',
             name: '最大耗时(ms)',
             min: 0,
-            max: 120000,
-            interval: 20000,
+            max: 60000,
+            interval: 10000,
             axisLabel: {
                 formatter: '{value}'
             }
@@ -107,8 +107,8 @@ const option = {
             type: 'value',
             name: '最小耗时(ms)',
             min: 0,
-            max: 120000,
-            interval: 20000,
+            max: 60000,
+            interval: 10000,
             axisLabel: {
                 formatter: '{value}'
             }
@@ -138,7 +138,7 @@ const option = {
         }
         ,
         {
-            name:'平均耗时',
+            name:'平均耗时(ms)',
             type:'line',
             yAxisIndex: 1,
             data:[]
@@ -240,14 +240,16 @@ export default {
 
                visiteVolume.setOption(option);
 
-            //    window.addEventListener('resize', function () {
-            //      visiteVolume.resize();
-            //    });
                     let server=Api.MixedLineAndBar;
-                    let data={"logstastname":`logstash-${this.dateValue}`}
+                    let data=null;
+                    if (this.model1==""&& this.dateValue!=""){
+                        data={"logstastname":`logstash-${this.dateValue}`}
+                    }else{
+                         data={"logstastname":`logstash-${this.dateValue}`,"name":this.model1}
+                    }
+                    console.log("===================================");
+                    console.log(data);
                     Axios.post(server,data).then((res)=>{
-                        console.log("这是=====================handleSubmit方法=====================");
-                        console.log(res.data);
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
 
@@ -255,7 +257,7 @@ export default {
                         if(res.data.message=="ok"){
                             setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
                            visiteVolume.hideLoading(); //隐藏加载动画
-                            this.totalCount=res.data.data.totalCount
+                           this.totalCount=res.data.data.totalCount
                            visiteVolume.setOption({
                                 series: [
                                {

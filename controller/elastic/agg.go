@@ -66,6 +66,7 @@ type AggResult struct {
 //LoadAggChart post请求过来的数据
 type LoadAggChart struct {
 	LogstashName string `json:"logstastname" binding:"required`
+	Name         string `json:"name" binding:"required`
 }
 
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
@@ -83,36 +84,76 @@ func FindAggMetrics(c *gin.Context) {
 			// sou, err := query.Source()
 			fmt.Println(loadaggchart.LogstashName)
 			ctx := context.Background()
-			avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
-			maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
-			minAgg := elastic.NewMinAggregation().Field("latencies.request")
-			dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-			searchResult, err := client.Search().Index(loadaggchart.LogstashName).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+			if loadaggchart.Name != "" {
+				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", loadaggchart.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-			if err != nil {
-				//doSomething
+				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+				// searchResult, err := client.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
+				avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
+				maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
+				minAgg := elastic.NewMinAggregation().Field("latencies.request")
+				dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
+
+				searchResult, err := client.Search().Index(loadaggchart.LogstashName).Query(macth).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+
+				if err != nil {
+					//doSomething
+				}
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					//doSomthing
+				}
+				errCode := json.Unmarshal(buf, &aggMetrics)
+
+				if errCode != nil {
+					//doSometing
+				}
+
+				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
+
+				result, err := ConvertMap(aggResult)
+
+				if err != nil {
+					c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
+				}
+
+				// c.JSON(200, bbb)
+				c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
+			} else {
+				avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
+				maxAgg := elastic.NewMaxAggregation().Field("latencies.request")
+				minAgg := elastic.NewMinAggregation().Field("latencies.request")
+				dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
+
+				searchResult, err := client.Search().Index(loadaggchart.LogstashName).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+
+				if err != nil {
+					//doSomething
+				}
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					//doSomthing
+				}
+				errCode := json.Unmarshal(buf, &aggMetrics)
+
+				if errCode != nil {
+					//doSometing
+				}
+
+				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
+
+				result, err := ConvertMap(aggResult)
+
+				if err != nil {
+					c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
+				}
+
+				// c.JSON(200, bbb)
+				c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
 			}
-			buf, err := json.Marshal(searchResult)
-			if err != nil {
-				//doSomthing
-			}
-			errCode := json.Unmarshal(buf, &aggMetrics)
 
-			if errCode != nil {
-				//doSometing
-			}
-
-			aggResult := aggMetrics.Aggregations.DataAggs.Buckets
-
-			result, err := ConvertMap(aggResult)
-
-			if err != nil {
-				c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
-			}
-
-			// c.JSON(200, bbb)
-			c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
 		}
 	}
 
