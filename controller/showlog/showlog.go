@@ -107,9 +107,6 @@ type Logs struct {
 	} `json:"_shards"`
 }
 
-// logs 声明
-var logs Logs
-
 //Page 分页
 type Page struct {
 	PageSize   int    `json:"pagesize" binding:"required,numeric"`
@@ -147,8 +144,11 @@ func ShowLogs(c *gin.Context) {
 			if err != nil {
 				//doSomthing
 			}
+			logs := new(Logs)
 			errCode := json.Unmarshal(buf, &logs)
 
+			fmt.Println(logs.Hits.Total)
+			fmt.Println("总记录数是=================", logs.Hits.Total)
 			if errCode != nil {
 				//doSometing
 			}
@@ -194,6 +194,7 @@ func FindLogDetailByID(c *gin.Context) {
 			if err != nil {
 				//doSomthing
 			}
+			logs := new(Logs)
 			errCode := json.Unmarshal(buf, &logs)
 
 			if errCode != nil {
@@ -251,6 +252,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 				if err != nil {
 					//doSomthing
 				}
+				logs := new(Logs)
 				errCode := json.Unmarshal(buf, &logs)
 
 				if errCode != nil {

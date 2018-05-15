@@ -170,16 +170,18 @@ export default {
                     }
                     let tableData=[];
 
-                    if(this.dateValue !=""){
+                    if(this.dateValue !="" && this.model1==""){
+                         console.log("if====================");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
                     else if(this.dateValue=="" || this.model1 == ""){
+                         console.log("这里进入了else if====================");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
                     }else{
                         Axios.post(server,data).then((res)=>{
-                           
+                           console.log("这里进入了else====================");
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
@@ -228,6 +230,7 @@ export default {
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
                     }
+                    console.log("请求参数是：=============================",data);
                     Axios.post(server,data).then((res)=>{
                            
                            if(res.data.message=="ok"){
@@ -251,7 +254,7 @@ export default {
 
                                
                                });
-                              tableData=_.orderBy(tableData,['starttime'],['desc'])
+                               tableData=_.orderBy(tableData,['starttime'],['desc'])
                                this.data=tableData;
                                this.total=res.data.data.total;
                            }
@@ -286,12 +289,13 @@ export default {
                     });
         },
         changePage(index){
+            console.log("进入了changePage方法============================");
             console.log(index);
             // 200 400 From(page.PageNumber).Size(page.PageSize)
-            let data={"pagesize":200,"pagenumber":(index-1)*200}
+            let data={"pagesize":200,"pagenumber":(index-1)*200,"datevalue":`logstash-${moment(this.dateValue).format('YYYY.MM.DD')}`}
             this.handleMethod(data);
-            this.pageNumber=idnex;
-             this.loading=false;
+            this.pageNumber=index;
+            this.loading=false;
             // console.log(this.current);
         },
         queryUrlName(){

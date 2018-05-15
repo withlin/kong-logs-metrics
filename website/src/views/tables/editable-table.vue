@@ -119,7 +119,7 @@ const option = {
         {
             name:'最大耗时(ms)',
             type:'bar',
-            barWidth:45,
+            barWidth:40,
             yAxisIndex:0,
             itemStyle:{normal:{color:'#ff9966'}},
             data:[]
