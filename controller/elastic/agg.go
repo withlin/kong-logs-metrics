@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
 	"net/http"
 	"strconv"
@@ -17,10 +18,12 @@ var aggMetrics model.AggMetrics
 
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
 func FindAggMetrics(c *gin.Context) {
+	SendErrJSON := common.SendErrJSON
 	loadaggchart := new(model.LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
-		panic(err)
+		SendErrJSON("error", c)
+		return
 	}
 	defer client.Stop()
 
@@ -44,15 +47,22 @@ func FindAggMetrics(c *gin.Context) {
 
 				if err != nil {
 					//doSomething
+					SendErrJSON("error", c)
+					return
 				}
 				buf, err := json.Marshal(searchResult)
 				if err != nil {
 					//doSomthing
+					SendErrJSON("error", c)
+					return
+
 				}
 				errCode := json.Unmarshal(buf, &aggMetrics)
 
 				if errCode != nil {
 					//doSometing
+					SendErrJSON("error", c)
+					return
 				}
 
 				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
@@ -74,15 +84,21 @@ func FindAggMetrics(c *gin.Context) {
 
 				if err != nil {
 					//doSomething
+					SendErrJSON("error", c)
+					return
 				}
 				buf, err := json.Marshal(searchResult)
 				if err != nil {
 					//doSomthing
+					SendErrJSON("error", c)
+					return
 				}
 				errCode := json.Unmarshal(buf, &aggMetrics)
 
 				if errCode != nil {
 					//doSometing
+					SendErrJSON("error", c)
+					return
 				}
 
 				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
@@ -140,6 +156,7 @@ var pieMetrics model.PieMetrics
 
 // PieChar 圆表查询
 func PieChar(c *gin.Context) {
+	SendErrJSON := common.SendErrJSON
 	piechartpost := new(model.LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
@@ -170,17 +187,19 @@ func PieChar(c *gin.Context) {
 				searchResult, err := client.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err != nil {
-					//do something
-					// fmt.Println("发生错误了==================")
+					SendErrJSON("error", c)
+					return
 				}
 
 				buf, err := json.Marshal(searchResult)
 				if err != nil {
-					//doSomthing
+					SendErrJSON("error", c)
+					return
 				}
 				errCode := json.Unmarshal(buf, &pieMetrics)
 				if errCode != nil {
-					fmt.Println(errCode)
+					SendErrJSON("error", c)
+					return
 				}
 
 				agg := pieMetrics.Aggregations
@@ -223,65 +242,68 @@ func PieChar(c *gin.Context) {
 				searchResult, err := client.Search().Index(piechartpost.LogstashName).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err != nil {
-					//do something
-					// fmt.Println("发生错误了==================" + err.Error())
-				}
+					SendErrJSON("error", c)
+					return
 
-				buf, err := json.Marshal(searchResult)
-				if err != nil {
-					//doSomthing
-				}
-				errCode := json.Unmarshal(buf, &pieMetrics)
-				if errCode != nil {
-					fmt.Println(errCode)
-				}
+					buf, err := json.Marshal(searchResult)
+					if err != nil {
+						//doSomthing
+					}
+					errCode := json.Unmarshal(buf, &pieMetrics)
+					if errCode != nil {
+						SendErrJSON("error", c)
+						return
+					}
 
-				agg := pieMetrics.Aggregations
-				rAgg := agg.RangeAgg
-				pieBuckets := rAgg.Buckets
-				ms := "ms"
+					agg := pieMetrics.Aggregations
+					rAgg := agg.RangeAgg
+					pieBuckets := rAgg.Buckets
+					ms := "ms"
 
-				var item model.PieResult
+					var item model.PieResult
 
-				pieResults := []model.PieResult{}
+					pieResults := []model.PieResult{}
 
-				for _, elem := range pieBuckets {
+					for _, elem := range pieBuckets {
 
-					if elem.From == 0 {
+						if elem.From == 0 {
 
-						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
-						item.Name = to + ms
-						item.Value = elem.DocCount
-						pieResults = append(pieResults, item)
+							to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+							item.Name = to + ms
+							item.Value = elem.DocCount
+							pieResults = append(pieResults, item)
 
-					} else {
+						} else {
 
-						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
-						from := strconv.FormatFloat(elem.From, 'f', 0, 64)
-						item.Name = from + ms + "-" + to + ms
-						item.Value = elem.DocCount
-						pieResults = append(pieResults, item)
+							to := strconv.FormatFloat(elem.To, 'f', 0, 64)
+							from := strconv.FormatFloat(elem.From, 'f', 0, 64)
+							item.Name = from + ms + "-" + to + ms
+							item.Value = elem.DocCount
+							pieResults = append(pieResults, item)
+
+						}
 
 					}
 
+					c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
+
 				}
 
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
-
 			}
-
 		}
-	}
 
+	}
 }
 
 //QueryURLName 查询请求的API名称
 func QueryURLName(c *gin.Context) {
 	url := new(model.URL)
 	logstashname := new(model.DateValue)
+	SendErrJSON := common.SendErrJSON
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
-		panic(err)
+		SendErrJSON("error", c)
+		return
 	}
 	defer client.Stop()
 	ctx := context.Background()
@@ -295,13 +317,14 @@ func QueryURLName(c *gin.Context) {
 				searchResult, err := client.Search().Index(logstashname.LogstashName).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
 				if err != nil {
-					//doSomething
-					fmt.Println(err.Error())
+					SendErrJSON("error", c)
+					return
 				}
 
 				da, err := json.Marshal(searchResult)
 				if err != nil {
-					//doSometing
+					SendErrJSON("error", c)
+					return
 				}
 
 				err1 := json.Unmarshal(da, &url)
@@ -318,8 +341,7 @@ func QueryURLName(c *gin.Context) {
 		}
 
 	} else {
-		//doSomething
-
+		SendErrJSON("error", c)
+		return
 	}
-
 }

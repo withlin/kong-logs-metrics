@@ -1,10 +1,10 @@
 package login
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"kong-logs-metrics/controller/common"
 )
 
 //User 模拟登录的对象
@@ -16,6 +16,7 @@ type User struct {
 //PostCheckLogin 登录
 func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
+	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
 
 		if loginCommand.Username == "admin" && loginCommand.Password == "admin" {
@@ -26,6 +27,7 @@ func PostCheckLogin(c *gin.Context) {
 			c.JSON(http.StatusOK, gin.H{"message": "false", "data": "账户名无效或密码无效"})
 		}
 	} else {
-		fmt.Println(err.Error())
+		SendErrJSON("error", c)
+		return
 	}
 }
