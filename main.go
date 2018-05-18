@@ -3,9 +3,10 @@ package main
 import (
 	"fmt"
 	"io"
-	"kong-logs-metrics/config"
 	"os"
 
+	"kong-logs-metrics/config"
+	"kong-logs-metrics/model"
 	"kong-logs-metrics/router"
 
 	"github.com/gin-contrib/cors"
@@ -14,7 +15,6 @@ import (
 
 func main() {
 	// config.InitJSON()
-	config.InitAll()
 	// config.InitElasticSearchConfig()
 	fmt.Print(config.TestCinfig.URL)
 	fmt.Print(config.ServerConfig.APIPrefix)
@@ -24,16 +24,19 @@ func main() {
 	gin.Default()
 
 	fmt.Println("gin.Version: ", gin.Version)
+	if config.ServerConfig.Env != model.DevelopmentMode {
+		gin.SetMode(gin.ReleaseMode)
+		gin.DisableConsoleColor()
 
-	gin.SetMode(gin.DebugMode)
+		logFile, err := os.OpenFile(config.ServerConfig.LogFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 
-	logFile, err := os.OpenFile(config.ServerConfig.LogFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+		if err != nil {
+			fmt.Printf(err.Error())
+			os.Exit(-1)
+		}
+		gin.DefaultWriter = io.MultiWriter(logFile)
 
-	if err != nil {
-		fmt.Printf(err.Error())
-		os.Exit(-1)
 	}
-	gin.DefaultWriter = io.MultiWriter(logFile)
 
 	app := gin.New()
 	maxSize := int64(32)

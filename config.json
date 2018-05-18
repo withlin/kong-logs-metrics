@@ -7,6 +7,7 @@
         "LogDir":"",
         "APIPrefix":"/v1/api",
         "Port":7777,
-        "TokenMaxAge":7200
+        "TokenMaxAge":7200,
+        "Env":"development"
 	}
 }

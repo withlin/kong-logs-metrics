@@ -54,6 +54,7 @@ type serverConfig struct {
 	Port        int
 	TokenMaxAge int
 	LogFile     string
+	Env         string
 }
 
 // ServerConfig 服务端配置
@@ -84,7 +85,7 @@ func initServerConfig() {
 }
 
 //InitAll 初始化全部的数据
-func InitAll() {
+func init() {
 	initJSON()
 	initElasticSearchConfig()
 	initServerConfig()
