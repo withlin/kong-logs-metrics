@@ -153,11 +153,10 @@ func ShowLogs(c *gin.Context) {
 				//doSometing
 			}
 
-			a := searchResult.Hits
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": a})
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": searchResult.Hits})
 
 		} else {
-			// fmt.Println(err.Error())
+
 			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "PageSize和PageNumber必须大于零"})
 		}
 	} else {
@@ -200,16 +199,16 @@ func FindLogDetailByID(c *gin.Context) {
 			if errCode != nil {
 				//doSometing
 			}
-			// test := logs.Hits.Hits
-			// c.IndentedJSON()
-			a := searchResult.Hits
-			test := a.Hits
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+
+			hits := searchResult.Hits
+
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": hits.Hits})
 
 		} else {
 			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "无效的ID"})
 		}
 	} else {
+
 		fmt.Println(err.Error())
 	}
 
@@ -258,10 +257,9 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 				if errCode != nil {
 					//doSometing
 				}
-				test := logs.Hits
 
 				// c.IndentedJSON()
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
 			} else {
 				c.JSON(http.StatusOK, gin.H{"message": "false", "data": "当前日期没有数据，请选择其他日期"})
 			}
