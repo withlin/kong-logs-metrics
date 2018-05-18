@@ -1,13 +1,14 @@
 {
     "elasticsearch":{
-        "Host":"localhost",
-        "Port":9200
+        "Host":"http://192.168.199.17:9200",
+        "Port":9200,
+        "SetSniff":false
     },
     "go": {
         "LogDir":"",
         "APIPrefix":"/v1/api",
         "Port":7777,
         "TokenMaxAge":7200,
-        "Env":"development"
+        "Env":"production"
 	}
 }

@@ -158,9 +158,6 @@ export default {
         selectdata(page){
             let server=Api.FindLogsByApiName;
             let data=null;
-            console.log("这里是==========selectdata方法=========================")
-            console.log(this.model1);
-            console.log(page);
             if (page==1) {
                       data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
                         
@@ -171,17 +168,16 @@ export default {
                     let tableData=[];
 
                     if(this.dateValue !="" && this.model1==""){
-                         console.log("if====================");
+
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
                     else if(this.dateValue=="" || this.model1 == ""){
-                         console.log("这里进入了else if====================");
+                        
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
                     }else{
                         Axios.post(server,data).then((res)=>{
-                           console.log("这里进入了else====================");
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
@@ -221,16 +217,14 @@ export default {
         handleMethod(data){
 
                     let server=Api.ShowLog;
-                    //  let server=Api.MixedLineAndBar;
                     let tableData=[];
-                    console.log("handleMethod时间啊啊===================");
+                    
                     console.log(data);
                     let dateTimeNow= moment().format('YYYY.MM.DD');
                     console.log(dateTimeNow);
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
                     }
-                    console.log("请求参数是：=============================",data);
                     Axios.post(server,data).then((res)=>{
                            
                            if(res.data.message=="ok"){
@@ -271,8 +265,6 @@ export default {
                     let server=Api.ShowLogsDetail;
                     let tableData=[];
                     let data={'ID':`${id}`,'indexname':indexName};
-                    console.log("===========id为============");
-                    console.log(id);
 
                     Axios.post(server,data).then((res)=>{
                          
@@ -289,14 +281,10 @@ export default {
                     });
         },
         changePage(index){
-            console.log("进入了changePage方法============================");
-            console.log(index);
-            // 200 400 From(page.PageNumber).Size(page.PageSize)
             let data={"pagesize":200,"pagenumber":(index-1)*200,"datevalue":`logstash-${moment(this.dateValue).format('YYYY.MM.DD')}`}
             this.handleMethod(data);
             this.pageNumber=index;
             this.loading=false;
-            // console.log(this.current);
         },
         queryUrlName(){
             let server=Api.QueryUrlName;

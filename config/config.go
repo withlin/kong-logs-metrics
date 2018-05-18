@@ -33,19 +33,20 @@ func initJSON() {
 }
 
 type elasticSearchConfig struct {
-	Host string
-	Port int
-	URL  string
+	Host     string
+	Port     int
+	URL      string
+	SetSniff bool
 }
 
 // TestCinfig 相关测试配置
-var TestCinfig elasticSearchConfig
+var ESCinfig elasticSearchConfig
 
 //InitElasticSearchConfig  相关配置
 func initElasticSearchConfig() {
-	utils.SetStructByJSON(&TestCinfig, jsonData["elasticsearch"].(map[string]interface{}))
-	url := fmt.Sprintf("%s:%d", TestCinfig.Host, TestCinfig.Port)
-	TestCinfig.URL = url
+	utils.SetStructByJSON(&ESCinfig, jsonData["elasticsearch"].(map[string]interface{}))
+	url := fmt.Sprintf("%s:%d", ESCinfig.Host, ESCinfig.Port)
+	ESCinfig.URL = url
 }
 
 type serverConfig struct {

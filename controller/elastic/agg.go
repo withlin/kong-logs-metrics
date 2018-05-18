@@ -20,13 +20,6 @@ var aggMetrics model.AggMetrics
 func FindAggMetrics(c *gin.Context) {
 	SendErrJSON := common.SendErrJSON
 	loadaggchart := new(model.LoadAggChart)
-	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-	if err != nil {
-		SendErrJSON("error", c)
-		return
-	}
-	defer client.Stop()
-
 	if err := c.ShouldBindJSON(&loadaggchart); err == nil {
 		if loadaggchart.LogstashName != "" {
 
@@ -43,16 +36,16 @@ func FindAggMetrics(c *gin.Context) {
 				minAgg := elastic.NewMinAggregation().Field("latencies.request")
 				dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-				searchResult, err := client.Search().Index(loadaggchart.LogstashName).Query(macth).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(loadaggchart.LogstashName).Query(macth).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
 
 				if err != nil {
-					//doSomething
+
 					SendErrJSON("error", c)
 					return
 				}
 				buf, err := json.Marshal(searchResult)
 				if err != nil {
-					//doSomthing
+
 					SendErrJSON("error", c)
 					return
 
@@ -60,9 +53,9 @@ func FindAggMetrics(c *gin.Context) {
 				errCode := json.Unmarshal(buf, &aggMetrics)
 
 				if errCode != nil {
-					//doSometing
-					SendErrJSON("error", c)
-					return
+
+					// SendErrJSON("error", c)
+					// return
 				}
 
 				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
@@ -80,25 +73,25 @@ func FindAggMetrics(c *gin.Context) {
 				minAgg := elastic.NewMinAggregation().Field("latencies.request")
 				dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-				searchResult, err := client.Search().Index(loadaggchart.LogstashName).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(loadaggchart.LogstashName).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
 
 				if err != nil {
-					//doSomething
+
 					SendErrJSON("error", c)
 					return
 				}
 				buf, err := json.Marshal(searchResult)
 				if err != nil {
-					//doSomthing
+
 					SendErrJSON("error", c)
 					return
 				}
 				errCode := json.Unmarshal(buf, &aggMetrics)
 
 				if errCode != nil {
-					//doSometing
-					SendErrJSON("error", c)
-					return
+
+					// SendErrJSON("error", c)
+					// return
 				}
 
 				aggResult := aggMetrics.Aggregations.DataAggs.Buckets
@@ -158,12 +151,6 @@ var pieMetrics model.PieMetrics
 func PieChar(c *gin.Context) {
 	SendErrJSON := common.SendErrJSON
 	piechartpost := new(model.LoadAggChart)
-	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-	if err != nil {
-		panic(err)
-	}
-	defer client.Stop()
-
 	r1 := 2000
 	r2 := 4000
 	r3 := 6000
@@ -184,7 +171,7 @@ func PieChar(c *gin.Context) {
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
 				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddUnboundedFrom(10000000000)
-				searchResult, err := client.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)
@@ -195,11 +182,11 @@ func PieChar(c *gin.Context) {
 				if err != nil {
 					SendErrJSON("error", c)
 					return
+
 				}
 				errCode := json.Unmarshal(buf, &pieMetrics)
 				if errCode != nil {
-					SendErrJSON("error", c)
-					return
+
 				}
 
 				agg := pieMetrics.Aggregations
@@ -239,20 +226,18 @@ func PieChar(c *gin.Context) {
 				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddRange(r10, nil)
 				// tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
 
-				searchResult, err := client.Search().Index(piechartpost.LogstashName).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
-				if err != nil {
-					SendErrJSON("error", c)
-					return
+				if err == nil {
 
 					buf, err := json.Marshal(searchResult)
 					if err != nil {
-						//doSomthing
+						SendErrJSON("error", c)
+						return
 					}
 					errCode := json.Unmarshal(buf, &pieMetrics)
 					if errCode != nil {
-						SendErrJSON("error", c)
-						return
+
 					}
 
 					agg := pieMetrics.Aggregations
@@ -300,21 +285,21 @@ func QueryURLName(c *gin.Context) {
 	url := new(model.URL)
 	logstashname := new(model.DateValue)
 	SendErrJSON := common.SendErrJSON
-	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-	if err != nil {
-		SendErrJSON("error", c)
-		return
-	}
-	defer client.Stop()
+	// client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
+	// if err != nil {
+	// 	SendErrJSON("error", c)
+	// 	return
+	// }
+	// defer client.Stop()
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&logstashname); err == nil {
 		if logstashname.LogstashName != "" {
-			res, _ := client.IndexExists(logstashname.LogstashName).Do(ctx)
+			res, _ := common.ES.IndexExists(logstashname.LogstashName).Do(ctx)
 
 			if res {
 				termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
 
-				searchResult, err := client.Search().Index(logstashname.LogstashName).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+				searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)

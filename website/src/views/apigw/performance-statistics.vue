@@ -249,13 +249,9 @@ export default {
                     }else{
                          data={"logstastname":`logstash-${this.dateValue}`,"name":this.model1}
                     }
-                    console.log("===================================");
-                    console.log(data);
                     Axios.post(server,data).then((res)=>{
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
-                        console.log("=============================");
-                        console.log(res.data.data);
                         let tabledata=[];
                         if(res.data.message=="ok"){
                             setTimeout(()=>{  //未来让加载动画效果明显,这里加入了setTimeout,实现2s延时
@@ -281,7 +277,7 @@ export default {
                            });
                              }, 0 );
                              for(let i=0; i<res.data.data.avg.length; i++){
-                                //  let timeHour=`${i+1}时`;
+                               
                                  console.log(name);
                                  tabledata.push({
                                      time:`${i}时`,
