@@ -117,7 +117,6 @@ func FindAggMetrics(c *gin.Context) {
 					c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
 				}
 
-				// c.JSON(200, bbb)
 				c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
 			} else {
 				avgAgg := elastic.NewAvgAggregation().Field("latencies.request")
@@ -148,7 +147,6 @@ func FindAggMetrics(c *gin.Context) {
 					c.JSON(http.StatusOK, gin.H{"message": "false", "data": err})
 				}
 
-				// c.JSON(200, bbb)
 				c.IndentedJSON(http.StatusOK, gin.H{"message": "ok", "data": result})
 			}
 
@@ -261,7 +259,7 @@ func PieChar(c *gin.Context) {
 
 				if err != nil {
 					//do something
-					fmt.Println("发生错误了==================")
+					// fmt.Println("发生错误了==================")
 				}
 
 				buf, err := json.Marshal(searchResult)
@@ -314,7 +312,7 @@ func PieChar(c *gin.Context) {
 
 				if err != nil {
 					//do something
-					fmt.Println("发生错误了==================" + err.Error())
+					// fmt.Println("发生错误了==================" + err.Error())
 				}
 
 				buf, err := json.Marshal(searchResult)
@@ -334,18 +332,18 @@ func PieChar(c *gin.Context) {
 				var item PieResult
 
 				pieResults := []PieResult{}
-				// fmt.Println(PieBuckets[1].DocCount)
+
 				for _, elem := range pieBuckets {
 
 					if elem.From == 0 {
-						// fmt.Println(index)
+
 						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
 						item.Name = to + ms
 						item.Value = elem.DocCount
 						pieResults = append(pieResults, item)
 
 					} else {
-						// fmt.Println(index)
+
 						to := strconv.FormatFloat(elem.To, 'f', 0, 64)
 						from := strconv.FormatFloat(elem.From, 'f', 0, 64)
 						item.Name = from + ms + "-" + to + ms
@@ -357,7 +355,7 @@ func PieChar(c *gin.Context) {
 				}
 
 				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": pieResults})
-				// c.JSON(http.StatusOK, searchResult)
+
 			}
 
 		}
@@ -396,6 +394,7 @@ type ResultBuckets struct {
 	// DocCount int    `json:"doc_count"`
 }
 
+//DateValue DateValue
 type DateValue struct {
 	LogstashName string `json:"logstastname" binding:"required`
 }
@@ -443,7 +442,8 @@ func QueryURLName(c *gin.Context) {
 		}
 
 	} else {
-		fmt.Println("发生错误啦==================")
+		//doSomething
+
 	}
 
 }

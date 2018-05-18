@@ -17,9 +17,9 @@ type User struct {
 func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
-		fmt.Println("========================" + loginCommand.Password)
 
 		if loginCommand.Username == "admin" && loginCommand.Password == "admin" {
+
 			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": "登录成功"})
 
 		} else {
