@@ -195,7 +195,7 @@ export default {
                                        "upstreamurl":element._source.api.upstream_url,
                                        "name":element._source.api.name,
                                        "id":element._id,
-                                       "consumer":'',
+                                       "consumer":element._source.consumer.username,
                                        "usetime":`${element._source.latencies.request}`,
                                        "starttime":moment(date).format('YYYY-MM-DD HH:mm:ss'),
                                        "indexName":element._index
@@ -246,7 +246,7 @@ export default {
                                        "upstreamurl":element._source.api.upstream_url,
                                        "name":element._source.api.name,
                                        "id":element._id,
-                                       "consumer":'',
+                                       "consumer":element._source.consumer.username,
                                        "usetime":`${element._source.latencies.request}`,
                                        "starttime":moment.utc(element._source.started_at).local().format('YYYY-MM-DD HH:mm:ss'),
                                        "indexName":element._index

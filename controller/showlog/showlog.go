@@ -153,8 +153,8 @@ func ShowLogs(c *gin.Context) {
 				//doSometing
 			}
 
-			test := logs.Hits
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": test})
+			a := searchResult.Hits
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": a})
 
 		} else {
 			// fmt.Println(err.Error())
