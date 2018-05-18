@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"kong-logs-metrics/model"
 	"net/http"
 	"strconv"
 	"time"
@@ -12,66 +13,11 @@ import (
 	elastic "gopkg.in/olivere/elastic.v5"
 )
 
-// AggMetrics 日志聚合对象
-type AggMetrics struct {
-	Took     int    `json:"took"`
-	ScrollID string `json:"_scroll_id"`
-	Hits     struct {
-		Total    int           `json:"total"`
-		MaxScore int           `json:"max_score"`
-		Hits     []interface{} `json:"hits"`
-	} `json:"hits"`
-	Suggest      interface{} `json:"suggest"`
-	Aggregations struct {
-		DataAggs struct {
-			Buckets []Bucket `json:"buckets"`
-		} `json:"DataAggs"`
-	} `json:"aggregations"`
-	TimedOut bool `json:"timed_out"`
-	Shards   struct {
-		Total      int `json:"total"`
-		Successful int `json:"successful"`
-		Failed     int `json:"failed"`
-	} `json:"_shards"`
-}
-
-var aggMetrics AggMetrics
-
-//Bucket Bucket 对象
-type Bucket struct {
-	KeyAsString time.Time `json:"key_as_string"`
-	Key         int64     `json:"key"`
-	DocCount    int       `json:"doc_count"`
-	MaxAgg      struct {
-		Value float64 `json:"value"`
-	} `json:"maxAgg"`
-	MinAgg struct {
-		Value float64 `json:"value"`
-	} `json:"minAgg"`
-	AvgAgg struct {
-		Value float64 `json:"value"`
-	} `json:"avgAgg"`
-}
-
-//AggResult 聚合的结果
-type AggResult struct {
-	Min             [24]float64 `json:"min" binding:"required"`
-	Max             [24]float64 `json:"max" binding:"required"`
-	Avg             [24]float64 `json:"avg" binding:"required"`
-	Count           [24]int     `json:"count" binding:"required"`
-	TotalCount      int         `json:"totalCount" binding:"required"`
-	ShareTotalCount int         `json:"shareTotalCount" binding:"required"`
-}
-
-//LoadAggChart post请求过来的数据
-type LoadAggChart struct {
-	LogstashName string `json:"logstastname" binding:"required`
-	Name         string `json:"name" binding:"required`
-}
+var aggMetrics model.AggMetrics
 
 // FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
 func FindAggMetrics(c *gin.Context) {
-	loadaggchart := new(LoadAggChart)
+	loadaggchart := new(model.LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -156,14 +102,14 @@ func FindAggMetrics(c *gin.Context) {
 }
 
 // ConvertMap 赋值操作
-func ConvertMap(arr []Bucket) (AggResult, error) {
+func ConvertMap(arr []model.Bucket) (model.AggResult, error) {
 
 	var min [24]float64
 	var max [24]float64
 	var avg [24]float64
 	var count [24]int
 
-	var result AggResult
+	var result model.AggResult
 	for _, elem := range arr {
 		location, err := time.LoadLocation("Asia/Shanghai")
 		if err != nil {
@@ -190,45 +136,11 @@ func ConvertMap(arr []Bucket) (AggResult, error) {
 
 }
 
-//PieMetrics Pie聚合返回的实体
-type PieMetrics struct {
-	Took     int    `json:"took"`
-	ScrollID string `json:"_scroll_id"`
-	Hits     struct {
-		Total    int           `json:"total"`
-		MaxScore int           `json:"max_score"`
-		Hits     []interface{} `json:"hits"`
-	} `json:"hits"`
-	Suggest      interface{} `json:"suggest"`
-	Aggregations struct {
-		RangeAgg struct {
-			Buckets []struct {
-				Key      string  `json:"key"`
-				To       float64 `json:"to"`
-				DocCount int     `json:"doc_count"`
-				From     float64 `json:"from,omitempty"`
-			} `json:"buckets"`
-		} `json:"rangeAgg"`
-	} `json:"aggregations"`
-	TimedOut bool `json:"timed_out"`
-	Shards   struct {
-		Total      int `json:"total"`
-		Successful int `json:"successful"`
-		Failed     int `json:"failed"`
-	} `json:"_shards"`
-}
-
-//PieResult 返回Pie结果
-type PieResult struct {
-	Value int    `json:"value"`
-	Name  string `json:"name"`
-}
-
-var pieMetrics PieMetrics
+var pieMetrics model.PieMetrics
 
 // PieChar 圆表查询
 func PieChar(c *gin.Context) {
-	piechartpost := new(LoadAggChart)
+	piechartpost := new(model.LoadAggChart)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
@@ -276,9 +188,9 @@ func PieChar(c *gin.Context) {
 				pieBuckets := rAgg.Buckets
 				ms := "ms"
 
-				var item PieResult
+				var item model.PieResult
 
-				pieResults := []PieResult{}
+				pieResults := []model.PieResult{}
 				// fmt.Println(PieBuckets[1].DocCount)
 				for _, elem := range pieBuckets {
 
@@ -329,9 +241,9 @@ func PieChar(c *gin.Context) {
 				pieBuckets := rAgg.Buckets
 				ms := "ms"
 
-				var item PieResult
+				var item model.PieResult
 
-				pieResults := []PieResult{}
+				pieResults := []model.PieResult{}
 
 				for _, elem := range pieBuckets {
 
@@ -363,46 +275,10 @@ func PieChar(c *gin.Context) {
 
 }
 
-//URL 查询urlname
-type URL struct {
-	Took     int    `json:"took"`
-	ScrollID string `json:"_scroll_id"`
-	Hits     struct {
-		Total    int           `json:"total"`
-		MaxScore int           `json:"max_score"`
-		Hits     []interface{} `json:"hits"`
-	} `json:"hits"`
-	Suggest      interface{} `json:"suggest"`
-	Aggregations struct {
-		TermAgg struct {
-			DocCountErrorUpperBound int             `json:"doc_count_error_upper_bound"`
-			SumOtherDocCount        int             `json:"sum_other_doc_count"`
-			Buckets                 []ResultBuckets `json:"buckets"`
-		} `json:"termAgg"`
-	} `json:"aggregations"`
-	TimedOut bool `json:"timed_out"`
-	Shards   struct {
-		Total      int `json:"total"`
-		Successful int `json:"successful"`
-		Failed     int `json:"failed"`
-	} `json:"_shards"`
-}
-
-//ResultBuckets bucketResult
-type ResultBuckets struct {
-	Key string `json:"key"`
-	// DocCount int    `json:"doc_count"`
-}
-
-//DateValue DateValue
-type DateValue struct {
-	LogstashName string `json:"logstastname" binding:"required`
-}
-
 //QueryURLName 查询请求的API名称
 func QueryURLName(c *gin.Context) {
-	url := new(URL)
-	logstashname := new(DateValue)
+	url := new(model.URL)
+	logstashname := new(model.DateValue)
 	client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
 	if err != nil {
 		panic(err)
