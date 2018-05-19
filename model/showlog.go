@@ -81,6 +81,12 @@ type Logs struct {
 					ID                     string   `json:"id"`
 					UpstreamReadTimeout    int      `json:"upstream_read_timeout"`
 				} `json:"api"`
+				Consumer struct {
+					CustomID  string `json:"custom_id"`
+					CreatedAt int64  `json:"created_at"`
+					ID        string `json:"id"`
+					Username  string `json:"username"`
+				} `json:"consumer"`
 			} `json:"_source"`
 			Fields         interface{} `json:"fields"`
 			Explanation    interface{} `json:"_explanation"`
@@ -98,8 +104,6 @@ type Logs struct {
 	} `json:"_shards"`
 }
 
-
-
 //Page 分页
 type Page struct {
 	PageSize   int    `json:"pagesize" binding:"required,numeric"`
@@ -107,15 +111,11 @@ type Page struct {
 	DateValue  string `json:"datevalue" binding:"required"`
 }
 
-
-
 //ID ID
 type ID struct {
 	ID        string `json:"id" binding:"required"`
 	IndexName string `json:"indexname" binding:"required"`
 }
-
-
 
 //API API
 type API struct {
@@ -124,4 +124,3 @@ type API struct {
 	PageSize   int    `json:"pagesize" binding:"required,numeric"`
 	PageNumber int    `json:"pagenumber" binding:"required,numeric"`
 }
-

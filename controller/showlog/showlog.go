@@ -2,6 +2,7 @@ package showlog
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
@@ -15,6 +16,7 @@ import (
 func ShowLogs(c *gin.Context) {
 	page := new(model.Page)
 	SendErrJSON := common.SendErrJSON
+	logs := new(model.Logs)
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery())
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
@@ -26,7 +28,18 @@ func ShowLogs(c *gin.Context) {
 				return
 			}
 
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": searchResult.Hits})
+			buf, err := json.Marshal(searchResult)
+			if err != nil {
+				SendErrJSON("error", c)
+				return
+
+			}
+			errCode := json.Unmarshal(buf, &logs)
+			if errCode != nil {
+
+			}
+
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
 
 		} else {
 
@@ -77,6 +90,7 @@ func FindLogDetailByID(c *gin.Context) {
 func FindLogByAPINameAndDate(c *gin.Context) {
 
 	api := new(model.API)
+	logs := new(model.Logs)
 	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&api); err == nil {
 
@@ -95,7 +109,17 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 					SendErrJSON("error", c)
 					return
 				}
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": searchResult.Hits})
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					SendErrJSON("error", c)
+					return
+
+				}
+				errCode := json.Unmarshal(buf, &logs)
+				if errCode != nil {
+
+				}
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
 			} else {
 				c.JSON(http.StatusOK, gin.H{"message": "false", "data": "当前日期没有数据，请选择其他日期"})
 			}

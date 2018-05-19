@@ -3,7 +3,6 @@ package agg
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
 	"net/http"
@@ -22,8 +21,6 @@ func FindAggMetrics(c *gin.Context) {
 	loadaggchart := new(model.LoadAggChart)
 	if err := c.ShouldBindJSON(&loadaggchart); err == nil {
 		if loadaggchart.LogstashName != "" {
-
-			fmt.Println(loadaggchart.LogstashName)
 			ctx := context.Background()
 
 			if loadaggchart.Name != "" {
