@@ -7,13 +7,13 @@ KongApi Gateway Log Metrics 后台是基于 go 写的，web框架采用的[gin](
 
 效果图，如下所示：
 
-![折柱混合（报表）](https://github.com/WithLin0510/kong-logs-metrics/tree/master/pictrue/echart.png)
+![折柱混合（报表）](https://user-images.githubusercontent.com/22409551/40306164-33347c54-5d30-11e8-8b6f-068580a426b6.jpg)
 
-![饼状图 （报表）](https://github.com/WithLin0510/kong-logs-metrics/tree/master/pictrue/piechart.png)
+![饼状图 （报表）](https://user-images.githubusercontent.com/22409551/40306210-67edc0ae-5d30-11e8-997e-571ade958d7b.jpg)
 
-![表格 ](https://github.com/WithLin0510/kong-logs-metrics/tree/master/pictrue/viewtable.png)
+![表格 ](https://user-images.githubusercontent.com/22409551/40306211-684a5cb0-5d30-11e8-8223-4909924d0acf.jpg)
 
-![日志可视化](https://github.com/WithLin0510/kong-logs-metrics/tree/master/pictrue/logview.png)
+![日志可视化](https://user-images.githubusercontent.com/22409551/40306209-6781a626-5d30-11e8-9aca-745fc2955e61.jpg)
 
 
 
