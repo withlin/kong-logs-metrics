@@ -1,7 +1,6 @@
 {
     "elasticsearch":{
         "Host":"http://192.168.199.17:9200",
-        "Port":9200,
         "SetSniff":false
     },
     "go": {
