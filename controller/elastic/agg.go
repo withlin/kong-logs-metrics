@@ -3,6 +3,7 @@ package agg
 import (
 	"context"
 	"encoding/json"
+	"kong-logs-metrics/config"
 	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
 	"net/http"
@@ -33,7 +34,7 @@ func FindAggMetrics(c *gin.Context) {
 				minAgg := elastic.NewMinAggregation().Field("latencies.request")
 				dataAgg := elastic.NewDateHistogramAggregation().Field("started_at").Interval("1h").TimeZone("Asia/Shanghai").MinDocCount(1).SubAggregation("avgAgg", avgAgg).SubAggregation("maxAgg", maxAgg).SubAggregation("minAgg", minAgg)
 
-				searchResult, err := common.ES.Search().Index(loadaggchart.LogstashName).Query(macth).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(loadaggchart.LogstashName).Type(config.ESCinfig.LogstashType).Query(macth).From(0).Size(0).Aggregation("DataAggs", dataAgg).Do(ctx)
 
 				if err != nil {
 
@@ -168,7 +169,7 @@ func PieChar(c *gin.Context) {
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
 				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddUnboundedFrom(10000000000)
-				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Type(config.ESCinfig.LogstashType).Query(macth).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)
@@ -223,7 +224,7 @@ func PieChar(c *gin.Context) {
 				rangeAgg := elastic.NewRangeAggregation().Field("latencies.request").AddRange(nil, r1).AddRange(r1, r2).AddRange(r2, r3).AddRange(r3, r4).AddRange(r4, r5).AddRange(r5, r6).AddRange(r6, r7).AddRange(r7, r8).AddRange(r8, r9).AddRange(r9, r10).AddRange(r10, nil)
 				// tophitAgg := elastic.NewTopHitsAggregation().DocvalueFields("latencies.request").Sort("started_at", false)
 
-				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
+				searchResult, err := common.ES.Search().Index(piechartpost.LogstashName).Type(config.ESCinfig.LogstashType).Size(0).Aggregation("rangeAgg", rangeAgg).Do(ctx)
 
 				if err == nil {
 
@@ -296,7 +297,7 @@ func QueryURLName(c *gin.Context) {
 			if res {
 				termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
 
-				searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+				searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.ESCinfig.LogstashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)

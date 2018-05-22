@@ -1,7 +1,8 @@
 {
     "elasticsearch":{
         "Host":"http://192.168.199.17:9200",
-        "SetSniff":false
+        "SetSniff":false,
+        "LogstashType":"logs"
     },
     "go": {
         "LogDir":"",

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"kong-logs-metrics/config"
 	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
 	"net/http"
@@ -64,7 +65,7 @@ func FindLogDetailByID(c *gin.Context) {
 			query := elastic.NewIdsQuery().Ids(id.ID)
 			fmt.Println(query.Source())
 			ctx := context.Background()
-			searchResult, err := common.ES.Search().Index(id.IndexName).Type("logs").Query(query).Do(ctx)
+			searchResult, err := common.ES.Search().Index(id.IndexName).Type(config.ESCinfig.LogstashType).Query(query).Do(ctx)
 			if err != nil {
 				SendErrJSON("error", c)
 				return
@@ -103,7 +104,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-				searchResult, err := common.ES.Search().Index(api.Data).Type("logs").Query(macth).From(0).Size(200).Do(ctx)
+				searchResult, err := common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(0).Size(200).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)

@@ -33,10 +33,11 @@ func initJSON() {
 }
 
 type elasticSearchConfig struct {
-	Host     string
-	Port     int
-	URL      string
-	SetSniff bool
+	Host         string
+	Port         int
+	URL          string
+	SetSniff     bool
+	LogstashType string
 }
 
 // TestCinfig 相关测试配置
