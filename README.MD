@@ -21,7 +21,7 @@ KongApi Gateway Log Metrics 后台是基于 go 写的，web框架采用的[gin](
 
 ```
 
-git clone https://github.com/WithLin0510/kong-logs-metrics.git
+git clone https://github.com/DevWithLin/kong-logs-metrics.git
 
 cd  kong-logs-metrics
 
