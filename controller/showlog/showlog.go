@@ -22,6 +22,7 @@ func ShowLogs(c *gin.Context) {
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
 		if page.PageNumber > 0 && page.PageSize > 0 {
+			fmt.Println(config.ESCinfig.LogstashType)
 			searchResult, err := common.ES.Search().Index(page.DateValue).Type(config.ESCinfig.LogstashType).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 
 			if err != nil {
