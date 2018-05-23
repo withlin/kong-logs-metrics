@@ -1,4 +1,4 @@
-# KongApi Gateway Log Metrics
+# Kong Statistical Analysis Of Performance
 
 KongApi Gateway Log Metrics 后台是基于 go 写的，web框架采用的[gin](https://github.com/gin-gonic/gin),前台用的是Vue,UI组件
 采用的是[iView](https://github.com/iview/iview)
