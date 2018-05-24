@@ -20,6 +20,31 @@ KongApi Gateway Log Metrics 后台是基于 go 写的，web框架采用的[gin](
 ## Getting Started
 
 ```
+//Logstash 配置参考
+input {
+  tcp {
+    type => "tcp"
+    port => 6666
+    mode => "server"
+  }
+}
+filter  {
+      json {
+            source => "message"
+        }
+      date {
+        match => ["started_at", "yyyy-MM-dd HH:mm:ss,SSS", "UNIX_MS"]
+        target=>"started_at"
+        locale => "cn"
+        timezone => "Asia/Shanghai"
+    }
+}
+output {
+  elasticsearch { hosts => ["localhost:9200"] }
+  stdout { codec => rubydebug }
+}
+
+使用kong gateway的admina pi添加插件tcp log,配置的地址就写logstash的地址，端口为上面配置设置的端口
 
 git clone https://github.com/DevWithLin/kong-logs-metrics.git
 
@@ -49,7 +74,8 @@ go run main.go
 
 cd  kong-logs-metrics/website
 
-//还原依赖
+
+//还原依赖  注意：Node版本使用v8.10.0 最新版本不兼容（webpack）
 npm i 或者 cnpm i
 
 //启动前端项目
