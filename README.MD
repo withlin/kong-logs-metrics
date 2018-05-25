@@ -50,6 +50,8 @@ git clone https://github.com/DevWithLin/kong-logs-metrics.git
 
 cd  kong-logs-metrics
 
+//vendor文件夹的东西拷贝到 GOPATH目录的SRC下面
+
 //设置ElasticSearch服务端地址
 vim config.json
 
