@@ -44,7 +44,7 @@ output {
   stdout { codec => rubydebug }
 }
 
-使用kong gateway的admina pi添加插件tcp log,配置的地址就写logstash的地址，端口为上面配置设置的端口
+使用kong gateway的kong-admin添加插件tcp log,配置的地址就写logstash的地址，端口为上面配置设置的端口
 
 git clone https://github.com/DevWithLin/kong-logs-metrics.git
 
