@@ -177,17 +177,17 @@ export default {
                     }
                     let tableData=[];
 
-                    if(this.dateValue !="" && this.uri==""){
-
+                    if(this.dateValue !="" && this.uri=="" && this.matchid==""){
+                        console.log("==========if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
-                    else if(this.dateValue=="" || this.date == ""){
-                        
+                    else if(this.dateValue=="" || this.uri == "" && this.matchid==""){
+                        console.log("==========else-if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
                     }else{
-
+                        console.log("==========else===========");
                         Axios.post(server,data).then((res)=>{
                            if(res.data.message=="ok"){
                             

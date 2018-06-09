@@ -94,20 +94,16 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 	api := new(model.API)
 	logs := new(model.Logs)
 	SendErrJSON := common.SendErrJSON
-
+	ctx := context.Background()
 	if err := c.ShouldBindJSON(&api); err == nil {
 
 		if api.Name != "" && api.Data != "" {
-			ctx := context.Background()
 
 			res, _ := common.ES.IndexExists(api.Data).Do(ctx)
 			if res {
 				var searchResult interface{}
 				var err error
 				if api.Appid != "" {
-					fmt.Println("=========api.Appid======")
-					fmt.Println(api.Appid)
-					fmt.Println("=========api.Appid======")
 					boolQueryMatch := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", api.Appid).Slop(0).Boost(1), elastic.NewMatchPhraseQuery("request.uri", api.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 					boolQueryWrap := elastic.NewBoolQuery().Must(boolQueryMatch).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 					filterQueryWrap := elastic.NewBoolQuery().Filter(boolQueryWrap).DisableCoord(false).AdjustPureNegative(true).Boost(1)
@@ -116,12 +112,11 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 					fmt.Println(searchResult)
 					fmt.Println(err)
 				} else {
-					fmt.Println("=========没有api.Appid======")
 					boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.uri", api.Name).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
 					macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-					searchResult, err = common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(0).Size(200).Do(ctx)
+					searchResult, err = common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
 				}
 
 				if err != nil {
@@ -144,7 +139,31 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 			}
 
 		} else {
-			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "..."})
+			fmt.Println("==============只有AppId的查询进来了==========")
+			res, _ := common.ES.IndexExists(api.Data).Do(ctx)
+			if res {
+				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", api.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+				searchResult, err := common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
+
+				if err != nil {
+					SendErrJSON("error", c)
+					return
+				}
+				buf, err := json.Marshal(searchResult)
+				if err != nil {
+					SendErrJSON("error", c)
+					return
+
+				}
+				errCode := json.Unmarshal(buf, &logs)
+				if errCode != nil {
+
+				}
+				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
+			}
 		}
 	} else {
 		fmt.Println(err.Error())
