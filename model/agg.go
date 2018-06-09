@@ -124,5 +124,5 @@ type ResultBuckets struct {
 
 //DateValue DateValue
 type DateValue struct {
-	LogstashName string `json:"logstastname" binding:"required`
+	LogstashName string `json:"logstastname" binding:"required"`
 }

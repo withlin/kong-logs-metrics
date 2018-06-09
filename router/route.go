@@ -22,5 +22,6 @@ func Route(router *gin.Engine) {
 		api.POST("/showlogs", showlog.ShowLogs)
 		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
 		api.POST("/findlogsbyapiname", showlog.FindLogByAPINameAndDate)
+		api.POST("findmatchid", agg.MatchID)
 	}
 }

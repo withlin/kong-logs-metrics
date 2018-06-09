@@ -3,6 +3,7 @@ package agg
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"kong-logs-metrics/config"
 	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
@@ -280,24 +281,29 @@ func PieChar(c *gin.Context) {
 
 //QueryURLName 查询请求的API名称
 func QueryURLName(c *gin.Context) {
+	wapperQuery("upstream_uri.keyword", c)
+}
+
+func wapperQuery(keyword string, c *gin.Context) {
 	url := new(model.URL)
 	logstashname := new(model.DateValue)
 	SendErrJSON := common.SendErrJSON
-	// client, err := elastic.NewClient(elastic.SetURL("http://192.168.199.17:9200"), elastic.SetSniff(false))
-	// if err != nil {
-	// 	SendErrJSON("error", c)
-	// 	return
-	// }
-	// defer client.Stop()
 	ctx := context.Background()
+
 	if err := c.ShouldBindJSON(&logstashname); err == nil {
+
 		if logstashname.LogstashName != "" {
 			res, _ := common.ES.IndexExists(logstashname.LogstashName).Do(ctx)
 
 			if res {
-				termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
+				fmt.Println("keyword:" + keyword)
+				termAgg := elastic.NewTermsAggregation().Field(keyword)
 
 				searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.ESCinfig.LogstashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+				fmt.Println("=====================")
+				fmt.Println(searchResult)
+				fmt.Println("=====================")
 
 				if err != nil {
 					SendErrJSON("error", c)
@@ -327,4 +333,10 @@ func QueryURLName(c *gin.Context) {
 		SendErrJSON("error", c)
 		return
 	}
+}
+
+//MatchID 查询matchid并且去重
+func MatchID(c *gin.Context) {
+	wapperQuery("request.headers.appid.keyword", c)
+
 }

@@ -135,3 +135,39 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 		return
 	}
 }
+
+// //FindLogByAppid 通过Appid去匹配日志
+// func FindLogByAppid(c *gin.Context) {
+// 	matchid := new(model.MatchAppID)
+
+// 	SendErrJSON := common.SendErrJSON
+// 	if err := c.ShouldBindJSON(&matchid); err == nil {
+// 		if matchid.Appid != "" {
+// 			ctx := context.Background()
+
+// 			res, _ := common.ES.IndexExists(matchid.Data).Do(ctx)
+
+// 			if res {
+// 				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", matchid.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+// 				filterQuery := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+// 				searchResult, err := common.ES.Search().Index(matchid.Data).Type(config.ESCinfig.LogstashType).Query(filterQuery).From(matchid.PageNumber).Size(matchid.PageSize).Do(ctx)
+
+// 				if err != nil {
+// 					SendErrJSON("error", c)
+// 					return
+// 				}
+// 				buf, err := json.Marshal(searchResult)
+// 				if err != nil {
+// 					SendErrJSON("error", c)
+// 					return
+
+// 				}
+// 				errCode := json.Unmarshal(buf, &logs)
+// 				if errCode != nil {
+
+// 				}
+// 				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
+// 			}
+// 		}
+// 	}
+// }

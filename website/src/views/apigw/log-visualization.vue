@@ -23,18 +23,25 @@
 <template>
     <div>
         <Card style="height:100px">
-        <Row>
-        <Col span="4" offset="2">
+        <Row type="flex" justify="center" class="code-row-bg">
+        <Col span="3">
         <Button @click="selectdata" type="primary" >查询</Button>
         </Col>
-        <Col span="3">
-        <Select v-model="model1" @on-change="getOptionValue" style="width:200px" filterable clearable>
+
+         <Col span="3" offset="3">
+         <Select v-model="matchid" @on-change="getmatchid" style="width:260px" filterable clearable placeholder="请选择Matchid">
+         <Option v-for="item in matchList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
+         </Select>
+         </Col>
+
+        <Col span="3" offset="4">
+        <Select v-model="model1" @on-change="getOptionValue" style="width:200px" filterable clearable placeholder="请选择Uri">
         <Option v-for="item in apiList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
         </Select>
         </Col>
 
-        <Col span="4" offset="4">
-        <DatePicker type="date" :value="dateValue" @on-change="getDataValue"placeholder="选择日期" style="width: 200px"></DatePicker>
+        <Col span="4" offset="2">
+        <DatePicker type="date" :value="dateValue" @on-change="getDataValue" placeholder="选择日期" style="width: 200px"></DatePicker>
         </DatePicker>
         </Col>
         </Row>
@@ -67,6 +74,8 @@ export default {
     name: 'showlog',
     data () {
         return {
+            matchid:'',
+            matchList:[],
             pageNumber:1,
             model1:'',
             optionValue:'',
@@ -151,7 +160,8 @@ export default {
         this.$nextTick(()=>{
             this.dateValue=moment().format('YYYY.MM.DD');
             this.handleMethod();
-            this.queryUrlName();         
+            this.queryUrlName();
+            this.FindMatchid();         
         });
     },
     methods: {
@@ -160,7 +170,7 @@ export default {
             let data=null;
             if (page==1) {
                       data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
-                        
+
                     }else{
                         data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
 
@@ -326,6 +336,43 @@ export default {
         },
         getOptionValue(value){
             console.log(this.model1);
+        },
+        FindMatchid(){
+            let server=Api.FindMatchid;
+            let data={"logstastname":`logstash-${this.dateValue}`};
+            let apis=[];
+             Axios.post(server,data).then((res)=>{
+                        console.log("=========================");
+                        console.log(res.data);
+                        console.log("=========================");
+
+                          if(res.data.message=="ok"){
+                              for (let index = 0; index < res.data.data.length; index++) {
+                                 apis.push({
+                                     value:res.data.data[index].key,
+                                     label:res.data.data[index].key
+                                 })
+                                  
+                              }
+                              this.matchList=apis;
+                          }else{
+                              console.log(res.data.data);
+                              this.$Notice.warning({
+                                         duration:6,
+                                         title: '警告',
+                                         desc:res.data.data
+                              });
+                              this.matchList=[];
+                          }
+                      
+                           
+                    }).catch((err)=>{
+                        this.$Message.error(err.message);
+                        console.log(err);
+                    });
+        },
+        getmatchid(){
+         console.log(this.matchid);
         }
     }
 };

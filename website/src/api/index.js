@@ -16,7 +16,8 @@ const Login={
     PieChart:serverAddress +'/piechart',
     ShowLog:serverAddress+'/showlogs',
     ShowLogsDetail:serverAddress+"/findlogdetailbyid",
-    FindLogsByApiName:serverAddress+"/findlogsbyapiname"
+    FindLogsByApiName:serverAddress+"/findlogsbyapiname",
+    FindMatchid:serverAddress+"/findmatchid"
     
 
 }
