@@ -35,7 +35,7 @@
          </Col>
 
         <Col span="3" offset="4">
-        <Select v-model="model1" @on-change="getOptionValue" style="width:200px" filterable clearable placeholder="请选择Uri">
+        <Select v-model="uri" @on-change="getOptionValue" style="width:200px" filterable clearable placeholder="请选择Uri">
         <Option v-for="item in apiList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
         </Select>
         </Col>
@@ -77,7 +77,7 @@ export default {
             matchid:'',
             matchList:[],
             pageNumber:1,
-            model1:'',
+            uri:'',
             optionValue:'',
             dateValue:'',
             apiList:[],
@@ -169,24 +169,25 @@ export default {
             let server=Api.FindLogsByApiName;
             let data=null;
             if (page==1) {
-                      data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
+                      data={"appid":this.matchid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
 
                     }else{
-                        data={"name":this.model1,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
+                        data={"appid":this.matchid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
 
                     }
                     let tableData=[];
 
-                    if(this.dateValue !="" && this.model1==""){
+                    if(this.dateValue !="" && this.uri==""){
 
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
-                    else if(this.dateValue=="" || this.model1 == ""){
+                    else if(this.dateValue=="" || this.date == ""){
                         
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
                     }else{
+
                         Axios.post(server,data).then((res)=>{
                            if(res.data.message=="ok"){
                             
@@ -335,7 +336,7 @@ export default {
             this.queryUrlName();
         },
         getOptionValue(value){
-            console.log(this.model1);
+            console.log(this.uri);
         },
         FindMatchid(){
             let server=Api.FindMatchid;

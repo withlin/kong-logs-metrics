@@ -119,14 +119,9 @@ type ID struct {
 
 //API API
 type API struct {
+	Appid      string `json:"appid" binding:"required"`
 	Name       string `json:"name" binding:"required"`
 	Data       string `json:"datevalue" binding:"required"`
 	PageSize   int    `json:"pagesize" binding:"required,numeric"`
 	PageNumber int    `json:"pagenumber" binding:"required,numeric"`
-}
-
-//MatchAppID 匹配Appid
-type MatchAppID struct {
-	Appid string `json:"name" binding:"required"`
-	API
 }
