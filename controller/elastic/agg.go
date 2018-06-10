@@ -17,7 +17,7 @@ import (
 
 var aggMetrics model.AggMetrics
 
-// FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片
+// FindAggMetrics kong日志聚合统计Api  这是折线 条形 混住 图片    
 func FindAggMetrics(c *gin.Context) {
 	SendErrJSON := common.SendErrJSON
 	loadaggchart := new(model.LoadAggChart)
