@@ -57,23 +57,22 @@ cd  kong-logs-metrics
 
 //vendor文件夹的东西拷贝到 GOPATH目录的SRC下面
 
-//设置ElasticSearch服务端地址
-vim config.json
 
+
+vim config.yml
 配置说明
-{
-    "elasticsearch":{
-        "Host":"http://192.168.199.17:9200", //配置ES地址
-        "SetSniff":false                     //SetSniff 是否为false
-    },
-    "go": {
-        "LogDir":"",                    
-        "APIPrefix":"/v1/api",              //API前缀
-        "Port":7777,                        //go启动Server监控的端口
-        "TokenMaxAge":7200,
-        "Env":"production"                  // /*模式(开发(development)，测试(test)，产品(production)*/
-	}
-}
+
+elasticsearch:
+  host: http://192.168.199.17:9200/   //配置ES地址
+  setsniff: false                     //SetSniff 是否为false
+  logstashtype: logs                  //索引的类型
+
+go:
+  apiprefix: /v1/api                   //API前缀（分组）
+  port: 7777                           //端口
+  tokenmaxage: 7200                    
+  env: production                      // /*模式(开发(development)，测试(test)，产品(production)*/
+  logdir: 
 
 //启动后台服务
 go run main.go
