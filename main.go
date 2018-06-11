@@ -21,6 +21,9 @@ func main() {
 	fmt.Print(config.ServerConfig.LogDir)
 	fmt.Print(config.ServerConfig.LogFile)
 	fmt.Print(config.ServerConfig.Port)
+	fmt.Println("=========")
+	config.InitYaml()
+	fmt.Println("=========")
 	// gin.Default()
 
 	fmt.Println("gin.Version: ", gin.Version)

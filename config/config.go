@@ -8,9 +8,44 @@ import (
 	"os"
 	"regexp"
 	"unicode/utf8"
+
+	yaml "gopkg.in/yaml.v2"
 )
 
 var jsonData map[string]interface{}
+
+// ESConfi
+type conf struct {
+	ElasticSearch struct {
+		Host         string `yaml:"host"`
+		SetSniff     string `yaml:"setsniff"`
+		LogStashType string `yaml:"logstashtype"`
+	} `yaml:"elasticsearch"`
+	GoConf struct {
+		APIPrefix   string `yaml:"host"`
+		Port        int    `yaml:"port"`
+		TokenMaxAge int    `yaml:"tokenmaxage"`
+		Env         string `yaml:"env"`
+		LogDir      string `yaml:"logdir"`
+	} `yaml:"go"`
+}
+
+//Conf 配置文件
+var Conf conf
+
+func initYaml() {
+	bytes, err := ioutil.ReadFile("./config.yml")
+	fmt.Println(bytes)
+	if err != nil {
+		fmt.Println("ReadFile: ", err.Error())
+		os.Exit(-1)
+	}
+	err = yaml.Unmarshal(bytes, &Conf)
+	if err != nil {
+		fmt.Println("Yml File Unmarshal :", err.Error())
+	}
+	fmt.Println(Conf)
+}
 
 //initJSON 初始化相关config.json相关数据
 func initJSON() {
@@ -33,11 +68,11 @@ func initJSON() {
 }
 
 type elasticSearchConfig struct {
-	Host         string
-	Port         int
-	URL          string
-	SetSniff     bool
-	LogstashType string
+	Host         string `yaml:"host"`
+	Port         int    `yaml:"port"`
+	URL          string `yaml:"URL"`
+	SetSniff     bool   `yaml:"setsniff"`
+	LogstashType string `yaml:"logstashtype"`
 }
 
 // TestCinfig 相关测试配置
