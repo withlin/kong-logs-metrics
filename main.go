@@ -5,9 +5,9 @@ import (
 	"io"
 	"os"
 
-	"kong-logs-metrics/config"
-	"kong-logs-metrics/model"
-	"kong-logs-metrics/router"
+	"github.com/DevWithLin/kong-logs-metrics/config"
+	"github.com/DevWithLin/kong-logs-metrics/model"
+	"github.com/DevWithLin/kong-logs-metrics/router"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"

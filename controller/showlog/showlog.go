@@ -4,10 +4,11 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"kong-logs-metrics/config"
-	"kong-logs-metrics/controller/common"
-	"kong-logs-metrics/model"
 	"net/http"
+
+	"github.com/DevWithLin/kong-logs-metrics/config"
+	"github.com/DevWithLin/kong-logs-metrics/controller/common"
+	"github.com/DevWithLin/kong-logs-metrics/model"
 
 	"github.com/gin-gonic/gin"
 	elastic "gopkg.in/olivere/elastic.v5"
