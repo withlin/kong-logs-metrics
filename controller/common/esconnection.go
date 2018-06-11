@@ -2,9 +2,10 @@ package common
 
 import (
 	"fmt"
-	"kong-logs-metrics/config"
 	"os"
 	"sync"
+
+	"github.com/DevWithLin/kong-logs-metrics/config"
 
 	elastic "gopkg.in/olivere/elastic.v5"
 )

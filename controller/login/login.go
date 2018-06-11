@@ -3,8 +3,8 @@ package login
 import (
 	"net/http"
 
+	"github.com/DevWithLin/kong-logs-metrics/controller/common"
 	"github.com/gin-gonic/gin"
-	"kong-logs-metrics/controller/common"
 )
 
 //User 模拟登录的对象

@@ -24,7 +24,7 @@ func main() {
 	// gin.Default()
 
 	fmt.Println("gin.Version: ", gin.Version)
-	if config.ServerConfig.Env != model.DevelopmentMode {
+	if config.Conf.GoConf.Env != model.DevelopmentMode {
 		gin.SetMode(gin.ReleaseMode)
 		gin.DisableConsoleColor()
 

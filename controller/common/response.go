@@ -1,8 +1,9 @@
 package common
 
 import (
-	"kong-logs-metrics/model"
 	"net/http"
+
+	"github.com/DevWithLin/kong-logs-metrics/model"
 
 	"github.com/gin-gonic/gin"
 )

@@ -1,10 +1,12 @@
 package router
 
 import (
-	"kong-logs-metrics/config"
-	"kong-logs-metrics/controller/elastic"
-	"kong-logs-metrics/controller/login"
-	"kong-logs-metrics/controller/showlog"
+	"fmt"
+
+	"github.com/DevWithLin/kong-logs-metrics/config"
+	"github.com/DevWithLin/kong-logs-metrics/controller/agg"
+	"github.com/DevWithLin/kong-logs-metrics/controller/login"
+	"github.com/DevWithLin/kong-logs-metrics/controller/showlog"
 
 	"github.com/gin-gonic/gin"
 )
@@ -15,6 +17,7 @@ func Route(router *gin.Engine) {
 
 	api := router.Group(apiPrefix)
 	{
+		fmt.Println()
 		api.POST("/findaggmetrics", agg.FindAggMetrics)
 		api.POST("/piechart", agg.PieChar)
 		api.POST("/test/queryurlname", agg.QueryURLName)

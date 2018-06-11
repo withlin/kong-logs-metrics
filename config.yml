@@ -1,0 +1,11 @@
+elasticsearch:
+  host: http://192.168.199.17:9200/
+  setsniff: false
+  logstashtype: logs
+
+go:
+  apiprefix: /v1/api
+  port: 7777
+  tokenmaxage: 7200
+  env: development
+  logdir: 

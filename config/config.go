@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"kong-logs-metrics/utils"
 	"os"
 	"regexp"
 	"unicode/utf8"
+
+	"github.com/DevWithLin/kong-logs-metrics/utils"
 
 	yaml "gopkg.in/yaml.v2"
 )
@@ -75,7 +76,7 @@ type elasticSearchConfig struct {
 	LogstashType string `yaml:"logstashtype"`
 }
 
-// TestCinfig 相关测试配置
+// ESCinfig 相关测试配置
 var ESCinfig elasticSearchConfig
 
 //InitElasticSearchConfig  相关配置
@@ -124,7 +125,4 @@ func initServerConfig() {
 //InitAll 初始化全部的数据
 func init() {
 	initYaml()
-	initJSON()
-	initElasticSearchConfig()
-	initServerConfig()
 }
