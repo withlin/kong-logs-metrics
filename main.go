@@ -14,10 +14,6 @@ import (
 )
 
 func main() {
-	fmt.Print(config.ServerConfig.APIPrefix)
-	fmt.Print(config.ServerConfig.LogDir)
-	fmt.Print(config.ServerConfig.LogFile)
-	fmt.Print(config.ServerConfig.Port)
 
 	fmt.Println("gin.Version: ", gin.Version)
 	if config.Conf.GoConf.Env != model.DevelopmentMode {
