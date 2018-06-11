@@ -14,7 +14,7 @@ var once sync.Once
 
 //ESClient es连接
 func ESClient() *elastic.Client {
-	client, err := elastic.NewClient(elastic.SetURL(config.ESCinfig.Host), elastic.SetSniff(config.ESCinfig.SetSniff))
+	client, err := elastic.NewClient(elastic.SetURL(config.Conf.ElasticSearch.Host), elastic.SetSniff(config.Conf.ElasticSearch.SetSniff))
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(-1)

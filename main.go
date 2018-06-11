@@ -21,9 +21,6 @@ func main() {
 	fmt.Print(config.ServerConfig.LogDir)
 	fmt.Print(config.ServerConfig.LogFile)
 	fmt.Print(config.ServerConfig.Port)
-	fmt.Println("=========")
-	config.InitYaml()
-	fmt.Println("=========")
 	// gin.Default()
 
 	fmt.Println("gin.Version: ", gin.Version)
@@ -31,7 +28,7 @@ func main() {
 		gin.SetMode(gin.ReleaseMode)
 		gin.DisableConsoleColor()
 
-		logFile, err := os.OpenFile(config.ServerConfig.LogFile, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
+		logFile, err := os.OpenFile(config.Conf.GoConf.LogDir, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 
 		if err != nil {
 			fmt.Printf(err.Error())
@@ -60,5 +57,5 @@ func main() {
 	app.Use(cors.Default())
 	router.Route(app)
 
-	app.Run(":" + fmt.Sprintf("%d", config.ServerConfig.Port))
+	app.Run(":" + fmt.Sprintf("%d", config.Conf.GoConf.Port))
 }

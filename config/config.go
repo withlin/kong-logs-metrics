@@ -18,8 +18,9 @@ var jsonData map[string]interface{}
 type conf struct {
 	ElasticSearch struct {
 		Host         string `yaml:"host"`
-		SetSniff     string `yaml:"setsniff"`
+		SetSniff     bool   `yaml:"setsniff"`
 		LogStashType string `yaml:"logstashtype"`
+		URL          string
 	} `yaml:"elasticsearch"`
 	GoConf struct {
 		APIPrefix   string `yaml:"host"`
@@ -44,7 +45,6 @@ func initYaml() {
 	if err != nil {
 		fmt.Println("Yml File Unmarshal :", err.Error())
 	}
-	fmt.Println(Conf)
 }
 
 //initJSON 初始化相关config.json相关数据
@@ -123,6 +123,7 @@ func initServerConfig() {
 
 //InitAll 初始化全部的数据
 func init() {
+	initYaml()
 	initJSON()
 	initElasticSearchConfig()
 	initServerConfig()

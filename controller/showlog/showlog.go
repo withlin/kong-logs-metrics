@@ -66,7 +66,7 @@ func FindLogDetailByID(c *gin.Context) {
 			query := elastic.NewIdsQuery().Ids(id.ID)
 			fmt.Println(query.Source())
 			ctx := context.Background()
-			searchResult, err := common.ES.Search().Index(id.IndexName).Type(config.ESCinfig.LogstashType).Query(query).Do(ctx)
+			searchResult, err := common.ES.Search().Index(id.IndexName).Type(config.Conf.ElasticSearch.LogStashType).Query(query).Do(ctx)
 			if err != nil {
 				SendErrJSON("error", c)
 				return
@@ -108,7 +108,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 					boolQueryWrap := elastic.NewBoolQuery().Must(boolQueryMatch).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 					filterQueryWrap := elastic.NewBoolQuery().Filter(boolQueryWrap).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-					searchResult, err = common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(filterQueryWrap).From(api.PageNumber).Size(api.PageSize).Do(ctx)
+					searchResult, err = common.ES.Search().Index(api.Data).Type(config.Conf.ElasticSearch.LogStashType).Query(filterQueryWrap).From(api.PageNumber).Size(api.PageSize).Do(ctx)
 					fmt.Println(searchResult)
 					fmt.Println(err)
 				} else {
@@ -116,7 +116,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 
 					macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-					searchResult, err = common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
+					searchResult, err = common.ES.Search().Index(api.Data).Type(config.Conf.ElasticSearch.LogStashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
 				}
 
 				if err != nil {
@@ -146,7 +146,7 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 
 				macth := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 
-				searchResult, err := common.ES.Search().Index(api.Data).Type(config.ESCinfig.LogstashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
+				searchResult, err := common.ES.Search().Index(api.Data).Type(config.Conf.ElasticSearch.LogStashType).Query(macth).From(api.PageNumber).Size(api.PageSize).Do(ctx)
 
 				if err != nil {
 					SendErrJSON("error", c)
