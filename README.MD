@@ -55,8 +55,14 @@ git clone https://github.com/DevWithLin/kong-logs-metrics.git
 
 cd  kong-logs-metrics
 
-//vendor文件夹的东西拷贝到 GOPATH目录的SRC下面
+##如何编译？
 
+//下载 dep包管理工具
+go get -u github.com/golang/dep/cmd/dep
+
+
+//安装依赖
+dep ensure
 
 
 vim config.yml
