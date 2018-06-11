@@ -37,7 +37,6 @@ var Conf conf
 
 func initYaml() {
 	bytes, err := ioutil.ReadFile("./config.yml")
-	fmt.Println(bytes)
 	if err != nil {
 		fmt.Println("ReadFile: ", err.Error())
 		os.Exit(-1)
