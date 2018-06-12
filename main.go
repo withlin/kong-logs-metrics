@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-
+	fmt.Println(config.Conf)
 	fmt.Println("gin.Version: ", gin.Version)
 	if config.Conf.GoConf.Env != model.DevelopmentMode {
 		gin.SetMode(gin.ReleaseMode)

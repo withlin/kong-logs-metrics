@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/DevWithLin/kong-logs-metrics/controller/common"
+
 	"github.com/gin-gonic/gin"
 )
 

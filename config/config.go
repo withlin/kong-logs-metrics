@@ -24,7 +24,7 @@ type conf struct {
 		URL          string
 	} `yaml:"elasticsearch"`
 	GoConf struct {
-		APIPrefix   string `yaml:"host"`
+		APIPrefix   string `yaml:"apiprefix"`
 		Port        int    `yaml:"port"`
 		TokenMaxAge int    `yaml:"tokenmaxage"`
 		Env         string `yaml:"env"`

@@ -2,9 +2,8 @@ package router
 
 import (
 	"fmt"
-
 	"github.com/DevWithLin/kong-logs-metrics/config"
-	"github.com/DevWithLin/kong-logs-metrics/controller/agg"
+	"github.com/DevWithLin/kong-logs-metrics/controller/elastic"
 	"github.com/DevWithLin/kong-logs-metrics/controller/login"
 	"github.com/DevWithLin/kong-logs-metrics/controller/showlog"
 
@@ -13,11 +12,12 @@ import (
 
 // Route ?????api??
 func Route(router *gin.Engine) {
-	apiPrefix := config.ServerConfig.APIPrefix
+	apiPrefix := config.Conf.GoConf.APIPrefix
+
+	fmt.Println(apiPrefix)
 
 	api := router.Group(apiPrefix)
 	{
-		fmt.Println()
 		api.POST("/findaggmetrics", agg.FindAggMetrics)
 		api.POST("/piechart", agg.PieChar)
 		api.POST("/test/queryurlname", agg.QueryURLName)
