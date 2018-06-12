@@ -1,6 +1,7 @@
 package login
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/DevWithLin/kong-logs-metrics/controller/common"
@@ -16,6 +17,7 @@ type User struct {
 //PostCheckLogin 登录
 func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
+	fmt.Println("===========进来了============")
 	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
 
