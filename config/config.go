@@ -30,6 +30,24 @@ type conf struct {
 		Env         string `yaml:"env"`
 		LogDir      string `yaml:"logdir"`
 	} `yaml:"go"`
+	Mysql struct {
+		Dialect      string `yaml:"dialect"`
+		Database     string `yaml:"database"`
+		User         string `yaml:"user"`
+		Passworld    string `yaml:"passowrd"`
+		Charset      string `yaml:"charset"`
+		Host         string `yaml:"host"`
+		Port         int    `yaml:"port"`
+		MaxIdleConns int    `yaml:"maxidleconns"`
+		MaxOpenConns int    `yaml:"maxopenconns"`
+	} `yaml:"mysql"`
+	Redis struct {
+		Host      string `yaml:"host"`
+		Port      int    `yaml:"port"`
+		Password  string `yaml:"passowrd"`
+		MaxIdle   int    `yaml:"maxIdle"`
+		MaxActive int    `yaml:"maxactive"`
+	} `yaml:"redis"`
 }
 
 //Conf 配置文件
