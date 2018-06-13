@@ -8,9 +8,9 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/DevWithLin/kong-logs-metrics/config"
-	"github.com/DevWithLin/kong-logs-metrics/controller/common"
-	"github.com/DevWithLin/kong-logs-metrics/model"
+	"kong-logs-metrics/config"
+	"kong-logs-metrics/controller/common"
+	"kong-logs-metrics/model"
 
 	"github.com/gin-gonic/gin"
 	elastic "gopkg.in/olivere/elastic.v5"

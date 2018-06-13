@@ -3,7 +3,7 @@ package common
 import (
 	"net/http"
 
-	"github.com/DevWithLin/kong-logs-metrics/model"
+	"kong-logs-metrics/model"
 
 	"github.com/gin-gonic/gin"
 )

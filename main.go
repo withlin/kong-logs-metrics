@@ -3,13 +3,13 @@ package main
 import (
 	"fmt"
 	"io"
+	"kong-logs-metrics/middleware"
 	"os"
 
-	"github.com/DevWithLin/kong-logs-metrics/config"
-	"github.com/DevWithLin/kong-logs-metrics/model"
-	"github.com/DevWithLin/kong-logs-metrics/router"
+	"kong-logs-metrics/config"
+	"kong-logs-metrics/model"
+	"kong-logs-metrics/router"
 
-	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -46,7 +46,7 @@ func main() {
 	// configCors.AllowOrigins = []string{"localhost"}
 	// config.AllowOrigins == []string{"http://google.com", "http://facebook.com"}
 
-	app.Use(cors.Default())
+	app.Use(middleware.CORSMiddleware())
 	router.Route(app)
 
 	app.Run(":" + fmt.Sprintf("%d", config.Conf.GoConf.Port))

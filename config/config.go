@@ -8,7 +8,7 @@ import (
 	"regexp"
 	"unicode/utf8"
 
-	"github.com/DevWithLin/kong-logs-metrics/utils"
+	"kong-logs-metrics/utils"
 
 	yaml "gopkg.in/yaml.v2"
 )

@@ -62,6 +62,9 @@ export default {
         handleSubmit () {
             this.$refs.loginForm.validate((valid) => {
                 if (valid) {
+
+
+                    // axios({ method: 'POST', url: 'you http api here', headers: {autorizacion: localStorage.token}, data: { user: 'name' } })
                     
                     this.$store.commit('setAvator', 'https://avatars1.githubusercontent.com/u/22409551?s=400&u=bafa72dbbfd895c17aa4bbbfeff2d2de164db146&v=4');
                     
@@ -71,16 +74,18 @@ export default {
                     let server=Api.CheckLogin;
 
                      this.$router.push('/home');
-                    Axios.post(server,data).then((res)=>{
+                    Axios.post(server,data, {headers: {'autorizacion': 'a',}}).then((res)=>{
                         console.log(res.data);
                         
                         if(res.data.message=="ok"){
                             Cookies.set('user', this.form.userName);
                             Cookies.set('password', this.form.password);
+                            
                             this.$Message.success('登录成功');
                             this.$router.push('/home');
                         }else{
-                            this.$Message.error('登录失败，账户或者密码错误!');
+                            // this.$Message.error('登录失败，账户或者密码错误!');
+                            this.$Message.error(res.data.message);
                             this.$router.push('/login');
                         }
                     }).catch((err)=>{

@@ -5,7 +5,7 @@ import (
 	"os"
 	"sync"
 
-	"github.com/DevWithLin/kong-logs-metrics/config"
+	"kong-logs-metrics/config"
 
 	elastic "gopkg.in/olivere/elastic.v5"
 )

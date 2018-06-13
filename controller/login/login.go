@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/DevWithLin/kong-logs-metrics/controller/common"
+	"kong-logs-metrics/controller/common"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
@@ -18,13 +19,19 @@ type User struct {
 //PostCheckLogin 登录
 func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
-	fmt.Println("===========进来了============")
 	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
-
+		fmt.Println("=================================================================")
 		if loginCommand.Username == "admin" && loginCommand.Password == "admin" {
+			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+				"username": loginCommand.Username,
+			})
+			fmt.Println(token)
+			if token != nil {
+				fmt.Println(token)
+			}
 
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": "登录成功"})
+			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": token})
 
 		} else {
 			c.JSON(http.StatusOK, gin.H{"message": "false", "data": "账户名无效或密码无效"})
