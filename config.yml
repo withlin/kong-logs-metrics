@@ -16,14 +16,14 @@ mysql:
     user: root
     passowrd: 000000
     charset: utf8mb4
-    host: 192.168.199.17
+    host: 192.168.199.16
     port: 3306
     maxidleconns: 5
     maxopenconns: 10
 
 redis: 
     host: 192.168.199.17
-    port: 6397
+    port: 6379
     passowrd: 
     maxIdle: 3
     maxactive: 5

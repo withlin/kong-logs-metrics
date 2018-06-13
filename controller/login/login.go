@@ -21,7 +21,6 @@ func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
 	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
-		fmt.Println("=================================================================")
 		if loginCommand.Username == "admin" && loginCommand.Password == "admin" {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 				"username": loginCommand.Username,

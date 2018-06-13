@@ -1,10 +1,7 @@
 package main
 
 import (
-	"fmt"
-	"log"
-
-	"github.com/gin-gonic/gin"
+	"kong-logs-metrics/model"
 )
 
 type CreateParams struct {
@@ -21,19 +18,21 @@ type Person struct {
 }
 
 func main() {
-	r := gin.Default()
+	// r := gin.Default()
 
-	r.GET("/test", func(c *gin.Context) {
-		var createParams CreateParams
-		err := c.BindJSON(&createParams)
-		if err != nil {
-			log.Fatal(err)
-		}
-		fmt.Println(createParams)
-	})
+	// r.GET("/test", func(c *gin.Context) {
+	// 	var createParams CreateParams
+	// 	err := c.BindJSON(&createParams)
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Println(createParams)
+	// })
 
-	r.Run(":8000")
+	// r.Run(":8000")
 
 	// request
 	// curl http://localhost:8000 -d @request.json
+
+	model.DB.AutoMigrate(&model.User{})
 }

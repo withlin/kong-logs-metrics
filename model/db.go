@@ -7,6 +7,7 @@ import (
 
 	"kong-logs-metrics/config"
 
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/gomodule/redigo/redis"
 	"github.com/jinzhu/gorm"
 )
@@ -52,4 +53,9 @@ func initRedis() {
 			return c, nil
 		},
 	}
+}
+
+func init() {
+	initDB()
+	initRedis()
 }
