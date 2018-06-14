@@ -29,6 +29,7 @@ type conf struct {
 		TokenMaxAge int    `yaml:"tokenmaxage"`
 		Env         string `yaml:"env"`
 		LogDir      string `yaml:"logdir"`
+		TokenSecret  string `yaml:"tokensecret"`
 	} `yaml:"go"`
 	Mysql struct {
 		Dialect      string `yaml:"dialect"`

@@ -67,6 +67,7 @@
 
 <script>
 import Axios from 'axios';
+import Cookies from 'js-cookie';
 import Api  from '@/api';
 import moment from 'moment';
 import _  from 'lodash';
@@ -166,6 +167,8 @@ export default {
     },
     methods: {
         selectdata(page){
+           
+            this.$Message.success(Cookies.get("token"));
             let server=Api.FindLogsByApiName;
             let data=null;
             if (page==1) {

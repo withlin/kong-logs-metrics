@@ -6,6 +6,9 @@ import (
 
 	"kong-logs-metrics/controller/common"
 
+	"kong-logs-metrics/config"
+	"kong-logs-metrics/model"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
@@ -19,21 +22,35 @@ type User struct {
 //PostCheckLogin 登录
 func PostCheckLogin(c *gin.Context) {
 	var loginCommand User
+	var user model.User
+
 	SendErrJSON := common.SendErrJSON
 	if err := c.ShouldBindJSON(&loginCommand); err == nil {
-		if loginCommand.Username == "admin" && loginCommand.Password == "admin" {
+		model.DB.Where("name = ? AND password = ?", loginCommand.Username, loginCommand.Password).First(&user)
+		if user != (model.User{}) {
 			token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
-				"username": loginCommand.Username,
+				"id": user.ID,
 			})
-			fmt.Println(token)
-			if token != nil {
-				fmt.Println(token)
+			tokenString, err := token.SignedString([]byte(config.Conf.GoConf.TokenSecret))
+			fmt.Println(tokenString)
+			if err != nil {
+				fmt.Println(err.Error())
+				SendErrJSON("内部错误", c)
+				return
+			}
+			if err := model.UserToRedis(tokenString, user); err != nil {
+				SendErrJSON("内部错误.", c)
+				return
 			}
 
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": token})
+			c.JSON(http.StatusOK, gin.H{
+				"errNo": model.ErrorCode.SUCCESS,
+				"msg":   "success",
+				"data":  tokenString,
+			})
 
 		} else {
-			c.JSON(http.StatusOK, gin.H{"message": "false", "data": "账户名无效或密码无效"})
+			SendErrJSON("账户或密码错误", c)
 		}
 	} else {
 		SendErrJSON("error", c)

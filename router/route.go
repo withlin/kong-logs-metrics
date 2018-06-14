@@ -2,7 +2,6 @@ package router
 
 import (
 	"kong-logs-metrics/controller/login"
-	"kong-logs-metrics/middleware"
 
 	"kong-logs-metrics/config"
 	"kong-logs-metrics/controller/elastic"
@@ -20,7 +19,7 @@ func Route(router *gin.Engine) {
 		api.POST("/findaggmetrics", agg.FindAggMetrics)
 		api.POST("/piechart", agg.PieChar)
 		api.POST("/test/queryurlname", agg.QueryURLName)
-		api.POST("/checklogin", middleware.JWT, login.PostCheckLogin)
+		api.POST("/checklogin", login.PostCheckLogin)
 		api.POST("/showlogs", showlog.ShowLogs)
 		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
 		api.POST("/findlogsbyapiname", showlog.FindLogByAPINameAndDate)

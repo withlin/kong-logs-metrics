@@ -4,7 +4,7 @@ const user = {
     state: {},
     mutations: {
         logout (state, vm) {
-            Cookies.remove('user');
+            Cookies.remove('token');
             Cookies.remove('password');
             Cookies.remove('access');
             // 恢复默认样式

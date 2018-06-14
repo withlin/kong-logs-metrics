@@ -26,11 +26,11 @@ router.beforeEach((to, from, next) => {
     } else if (Cookies.get('locking') === '0' && to.name === 'locking') {
         next(false);
     } else {
-        if (!Cookies.get('user') && to.name !== 'login') { // 判断是否已经登录且前往的页面不是登录页
+        if (!Cookies.get('token') && to.name !== 'login') { // 判断是否已经登录且前往的页面不是登录页
             next({
                 name: 'login'
             });
-        } else if (Cookies.get('user') && to.name === 'login') { // 判断是否已经登录且前往的是登录页
+        } else if (Cookies.get('token') && to.name === 'login') { // 判断是否已经登录且前往的是登录页
             Util.title();
             next({
                 name: 'home_index'

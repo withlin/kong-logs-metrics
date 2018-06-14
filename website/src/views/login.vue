@@ -73,25 +73,24 @@ export default {
                     
                     let server=Api.CheckLogin;
 
-                     this.$router.push('/home');
-                    Axios.post(server,data, {headers: {'autorizacion': 'a',}}).then((res)=>{
+                    //  this.$router.push('/home');
+                    Axios.post(server,data).then((res)=>{
                         console.log(res.data);
                         
-                        if(res.data.message=="ok"){
-                            Cookies.set('user', this.form.userName);
-                            Cookies.set('password', this.form.password);
-                            
+                        if(res.data.msg=="success"){
+                            Cookies.set('token', res.data.data,{expires: 0.1});
                             this.$Message.success('登录成功');
-                            this.$router.push('/home');
+                            this.$router.push('/apigw/performance-statistics');
                         }else{
                             // this.$Message.error('登录失败，账户或者密码错误!');
-                            this.$Message.error(res.data.message);
+                            this.$Message.error(res.data.msg);
                             this.$router.push('/login');
+                            this.$router.push('/apigw/performance-statistics');
                         }
                     }).catch((err)=>{
-                        this.$Message.error(err.message);
+                        this.$Message.error(err.msg);
                         console.log(err);
-                         this.$router.push('/home');
+                         this.$router.push('/login');
                     });
 
                     // if (this.form.userName === 'iview_admin') {

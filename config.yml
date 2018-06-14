@@ -9,6 +9,7 @@ go:
   tokenmaxage: 7200
   env: development
   logdir: 
+  tokensecret: AstrRAflaEAA
 
 mysql: 
     dialect: mysql
@@ -24,6 +25,6 @@ mysql:
 redis: 
     host: 192.168.199.17
     port: 6379
-    passowrd: 
+    passowrd: zhidian
     maxIdle: 3
     maxactive: 5
