@@ -78,7 +78,7 @@ export default {
                         console.log(res.data);
                         
                         if(res.data.msg=="success"){
-                            Cookies.set('token', res.data.data,{expires: 0.1});
+                            Cookies.set('token', res.data.data,{expires: 0.125});
                             this.$Message.success('登录成功');
                             this.$router.push('/apigw/performance-statistics');
                         }else{

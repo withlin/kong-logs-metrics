@@ -60,6 +60,7 @@ import echarts from 'echarts';
 import Axios from 'axios';
 import Api  from '@/api';
 import moment from 'moment';
+import Cookies from 'js-cookie';
 
 
 const option = {
@@ -249,7 +250,9 @@ export default {
                     }else{
                          data={"logstastname":`logstash-${this.dateValue}`,"name":this.model1}
                     }
-                    Axios.post(server,data).then((res)=>{
+                    
+                    let tokenString=Cookies.get("token")
+                    Axios.post(server,data,{headers: {"Access-Token": tokenString}}).then((res)=>{
                         visiteVolume.hideLoading();
                         visiteVolume.showLoading();
                         let tabledata=[];

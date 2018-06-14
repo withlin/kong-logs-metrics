@@ -6,7 +6,7 @@ elasticsearch:
 go:
   apiprefix: /v1/api
   port: 7777
-  tokenmaxage: 7200
+  tokenmaxage: 10800
   env: development
   logdir: 
   tokensecret: AstrRAflaEAA

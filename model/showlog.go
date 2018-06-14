@@ -106,6 +106,7 @@ type Logs struct {
 
 //Page 分页
 type Page struct {
+	Appid      string `json:"appid" binding:"required"`
 	PageSize   int    `json:"pagesize" binding:"required,numeric"`
 	PageNumber int    `json:"pagenumber" binding:"required,numeric"`
 	DateValue  string `json:"datevalue" binding:"required"`

@@ -18,41 +18,58 @@ import (
 func ShowLogs(c *gin.Context) {
 	page := new(model.Page)
 	SendErrJSON := common.SendErrJSON
-	logs := new(model.Logs)
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery())
+	phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 	ctx := context.Background()
+	userInter, _ := c.Get("user")
+	user := userInter.(model.User)
 	if err := c.ShouldBindJSON(&page); err == nil {
 		if page.PageNumber > 0 && page.PageSize > 0 {
-			fmt.Println(config.ESCinfig.LogstashType)
-			searchResult, err := common.ES.Search().Index(page.DateValue).Type(config.ESCinfig.LogstashType).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
+			if user.Name == "admin" {
 
-			if err != nil {
-				SendErrJSON("error", c)
-				return
-			}
+				AuthQuery(ctx, query, c, page)
 
-			buf, err := json.Marshal(searchResult)
-			if err != nil {
-				SendErrJSON("error", c)
-				return
+			} else {
+
+				AuthQuery(ctx, phraseQuery, c, page)
 
 			}
-			errCode := json.Unmarshal(buf, &logs)
-			if errCode != nil {
-
-			}
-
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
 
 		} else {
-
-			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "PageSize和PageNumber必须大于零"})
+			SendErrJSON("发生错误", c)
 		}
 	} else {
 		fmt.Println(err.Error())
 		SendErrJSON("error", c)
 		return
 	}
+}
+
+//AuthQuery 根据不同角色查询
+func AuthQuery(ctx context.Context, query elastic.Query, c *gin.Context, page *model.Page) {
+	SendErrJSON := common.SendErrJSON
+	logs := new(model.Logs)
+	searchResult, err := common.ES.Search().Index(page.DateValue).Type(config.Conf.ElasticSearch.LogStashType).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
+	if err != nil {
+		SendErrJSON("ES查询错误", c)
+		return
+	}
+
+	buf, err := json.Marshal(searchResult)
+	if err != nil {
+		SendErrJSON("error", c)
+		return
+
+	}
+	errCode := json.Unmarshal(buf, &logs)
+	if errCode != nil {
+		SendErrJSON("error", c)
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"errNo": 1,
+		"msg":   "success",
+		"data":  logs.Hits,
+	})
 }
 
 //FindLogDetailByID 通过索引的ID 查找某个日志的详情

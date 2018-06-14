@@ -29,7 +29,7 @@
         </Col>
 
          <Col span="3" offset="3">
-         <Select v-model="matchid" @on-change="getmatchid" style="width:260px" filterable clearable placeholder="请选择Matchid">
+         <Select v-model="appid" @on-change="getappid" style="width:260px" filterable clearable placeholder="请选择appid">
          <Option v-for="item in matchList" :value="item.value" :key="item.value" >{{ item.label }}</Option>
          </Select>
          </Col>
@@ -75,7 +75,7 @@ export default {
     name: 'showlog',
     data () {
         return {
-            matchid:'',
+            appid:'',
             matchList:[],
             pageNumber:1,
             uri:'',
@@ -191,7 +191,8 @@ export default {
                         this.handleMethod(test);
                     }else{
                         console.log("==========else===========");
-                        Axios.post(server,data).then((res)=>{
+                        let tokenString=Cookies.get("token")
+                        Axios.post(server,data,{headers: {"Access-Token": tokenString}}).then((res)=>{
                            if(res.data.message=="ok"){
                             
                                console.log(res.data.data);
@@ -237,7 +238,7 @@ export default {
                     let dateTimeNow= moment().format('YYYY.MM.DD');
                     console.log(dateTimeNow);
                     if (data===undefined) {
-                        data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`}
+                        data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`,"appid":this.appid}
                     }
                     Axios.post(server,data).then((res)=>{
                            
@@ -375,7 +376,7 @@ export default {
                         console.log(err);
                     });
         },
-        getmatchid(){
+        getappid(){
          console.log(this.matchid);
         }
     }
