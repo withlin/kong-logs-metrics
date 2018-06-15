@@ -16,21 +16,22 @@ import (
 
 //ShowLogs 展示日志
 func ShowLogs(c *gin.Context) {
+	userInter, _ := c.Get("user")
+	user := userInter.(model.User)
 	page := new(model.Page)
 	SendErrJSON := common.SendErrJSON
 	query := elastic.NewBoolQuery().Must(elastic.NewMatchAllQuery())
-	phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
 	ctx := context.Background()
-	userInter, _ := c.Get("user")
-	user := userInter.(model.User)
 	if err := c.ShouldBindJSON(&page); err == nil {
 		if page.PageNumber > 0 && page.PageSize > 0 {
+			page.Appid = user.AppID
 			if user.Name == "admin" {
 
 				AuthQuery(ctx, query, c, page)
 
 			} else {
-
+				phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 				AuthQuery(ctx, phraseQuery, c, page)
 
 			}

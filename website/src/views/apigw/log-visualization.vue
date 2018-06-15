@@ -242,7 +242,7 @@ export default {
                     }
                     Axios.post(server,data).then((res)=>{
                            
-                           if(res.data.message=="ok"){
+                           if(res.data.errNo=="ok"){
                             
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {

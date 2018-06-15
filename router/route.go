@@ -21,7 +21,7 @@ func Route(router *gin.Engine) {
 		api.POST("/piechart", agg.PieChar)
 		api.POST("/test/queryurlname", agg.QueryURLName)
 		api.POST("/checklogin", login.PostCheckLogin)
-		api.POST("/showlogs", showlog.ShowLogs)
+		api.POST("/showlogs", middleware.AuthUser, showlog.ShowLogs)
 		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
 		api.POST("/findlogsbyapiname", showlog.FindLogByAPINameAndDate)
 		api.POST("findmatchid", agg.MatchID)
