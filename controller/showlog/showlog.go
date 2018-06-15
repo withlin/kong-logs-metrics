@@ -50,17 +50,29 @@ func ShowLogs(c *gin.Context) {
 //AuthQuery 根据不同的账号查询
 func AuthQuery(ctx context.Context, query elastic.Query, c *gin.Context, page *model.Page) {
 	SendErrJSON := common.SendErrJSON
-	// logs := new(model.Logs)
+	logs := new(model.Logs)
 	searchResult, err := common.ES.Search().Index(page.DateValue).Type(config.Conf.ElasticSearch.LogStashType).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 	if err != nil {
 		SendErrJSON("ES查询错误", c)
 		return
 	}
 
+	buf, err := json.Marshal(searchResult)
+	if err != nil {
+		SendErrJSON("error", c)
+		return
+
+	}
+	errCode := json.Unmarshal(buf, &logs)
+	if errCode != nil {
+
+	}
+
+	hits := logs.Hits
 	c.JSON(http.StatusOK, gin.H{
 		"errNo": model.ErrorCode.SUCCESS,
 		"msg":   "success",
-		"data":  searchResult.Hits,
+		"data":  hits,
 	})
 }
 
@@ -81,13 +93,14 @@ func FindLogDetailByID(c *gin.Context) {
 				SendErrJSON("error", c)
 				return
 			}
-
-			hits := searchResult.Hits
-
-			c.JSON(http.StatusOK, gin.H{"message": "ok", "data": hits.Hits})
+			c.JSON(http.StatusOK, gin.H{
+				"errNo": model.ErrorCode.SUCCESS,
+				"msg":   "success",
+				"data":  searchResult.Hits,
+			})
 
 		} else {
-			c.JSON(http.StatusOK, gin.H{"message": "false", "error": "无效的ID"})
+			SendErrJSON("无效的ID或者索引名称", c)
 		}
 	} else {
 
@@ -143,9 +156,17 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 				if errCode != nil {
 
 				}
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.SUCCESS,
+					"msg":   "success",
+					"data":  logs.Hits,
+				})
 			} else {
-				c.JSON(http.StatusOK, gin.H{"message": "false", "data": "当前日期没有数据，请选择其他日期"})
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.ERROR,
+					"msg":   "当前日期没有数据，请选择其他日期",
+					"data":  logs.Hits,
+				})
 			}
 
 		} else {
@@ -169,9 +190,19 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 				}
 				errCode := json.Unmarshal(buf, &logs)
 				if errCode != nil {
-
+					SendErrJSON("error", c)
 				}
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.SUCCESS,
+					"msg":   "success",
+					"data":  logs.Hits,
+				})
+			} else {
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.ERROR,
+					"msg":   "当前日期没有数据，请选择其他日期",
+					"data":  logs.Hits,
+				})
 			}
 		}
 	} else {
@@ -180,39 +211,3 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 		return
 	}
 }
-
-// //FindLogByAppid 通过Appid去匹配日志
-// func FindLogByAppid(c *gin.Context) {
-// 	matchid := new(model.MatchAppID)
-
-// 	SendErrJSON := common.SendErrJSON
-// 	if err := c.ShouldBindJSON(&matchid); err == nil {
-// 		if matchid.Appid != "" {
-// 			ctx := context.Background()
-
-// 			res, _ := common.ES.IndexExists(matchid.Data).Do(ctx)
-
-// 			if res {
-// 				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", matchid.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
-// 				filterQuery := elastic.NewBoolQuery().Filter(boolQuery).DisableCoord(false).AdjustPureNegative(true).Boost(1)
-// 				searchResult, err := common.ES.Search().Index(matchid.Data).Type(config.ESCinfig.LogstashType).Query(filterQuery).From(matchid.PageNumber).Size(matchid.PageSize).Do(ctx)
-
-// 				if err != nil {
-// 					SendErrJSON("error", c)
-// 					return
-// 				}
-// 				buf, err := json.Marshal(searchResult)
-// 				if err != nil {
-// 					SendErrJSON("error", c)
-// 					return
-
-// 				}
-// 				errCode := json.Unmarshal(buf, &logs)
-// 				if errCode != nil {
-
-// 				}
-// 				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": logs.Hits})
-// 			}
-// 		}
-// 	}
-// }

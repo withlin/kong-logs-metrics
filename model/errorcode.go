@@ -16,6 +16,6 @@ var ErrorCode = errorCode{
 	ERROR:        1,
 	NotFound:     404,
 	LoginError:   1000, //用户名或密码错误
-	LoginTimeOut: 1001, //登录超市
+	LoginTimeOut: 1001, //登录超时
 	InActive:     1002, //未激活账号
 }

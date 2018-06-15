@@ -169,24 +169,23 @@ export default {
     methods: {
         selectdata(page){
            
-            this.$Message.success(Cookies.get("token"));
             let server=Api.FindLogsByApiName;
             let data=null;
             if (page==1) {
-                      data={"appid":this.matchid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
+                      data={"appid":this.appid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":1}
 
                     }else{
-                        data={"appid":this.matchid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
+                        data={"appid":this.appid,"name":this.uri,"datevalue":`logstash-${this.dateValue}`,"pagesize":200,"pagenumber":( this.pageNumber-1)*200}
 
                     }
                     let tableData=[];
 
-                    if(this.dateValue !="" && this.uri=="" && this.matchid==""){
+                    if(this.dateValue !="" && this.uri=="" && this.appid==""){
                         console.log("==========if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
-                    else if(this.dateValue=="" || this.uri == "" && this.matchid==""){
+                    else if(this.dateValue=="" || this.uri == "" && this.appid==""){
                         console.log("==========else-if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
@@ -194,7 +193,7 @@ export default {
                         console.log("==========else===========");
                         let tokenString=Cookies.get("token")
                         Axios.post(server,data,{headers: {"Access-Token": tokenString}}).then((res)=>{
-                           if(res.data.message=="ok"){
+                           if(res.data.errNo==0){
                             
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {
@@ -219,6 +218,12 @@ export default {
                                this.data=tableData;
                                this.total=res.data.data.total;
                            }
+                          else if(res.data.errNo==1000){
+                               Cookies.remove('token')
+                               this.$router.push('/login');
+                           }else{
+
+                           }
 
                             
                         this.loading=false;    
@@ -241,15 +246,18 @@ export default {
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`,"appid":this.appid}
                     }
+                    console.log("==============================")
+                    console.log(data)
+                    console.log("==============================")
                     Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
-                           console.log(res.data)
+                        //    console.log(res.data)
                            if(res.data.errNo==0){
                             
-                               console.log(res.data.data);
+
                                res.data.data.hits.forEach(element => {
                                    let date=new Date(element._source.started_at);
-                                   
                                    tableData.push({
+                                       
                                        "detail":'',
                                        "uris":element._source.request.uri,
                                        "methods":element._source.request.method,
@@ -267,11 +275,15 @@ export default {
                                tableData=_.orderBy(tableData,['starttime'],['desc'])
                                this.data=tableData;
                                this.total=res.data.data.total;
-                           }else{
-                               this.$Message.error(res.data.msg);
-                               Cookies.remove('token')
-                               this.$route.push('/login')
                            }
+                           else if(res.data.errNo==1000){
+                               Cookies.remove('token');
+                               this.$router.push('/login');
+                           }
+                           else{
+                               this.$Message.error(res.data.msg); 
+                           }
+
 
                             
                         this.loading=false;    
@@ -287,14 +299,15 @@ export default {
                     let data={'ID':`${id}`,'indexname':indexName};
 
                     Axios.post(server,data).then((res)=>{
-                         
-                           if(res.data.message=="ok"){
-                             this.showlogsdetail=res.data.data[0]._source;
-                             console.log(res.data.data[0]._source);
+                           if(res.data.errNo==0){
+                             this.showlogsdetail=res.data.data.hits[0]._source;
+                             console.log(res.data.data.hits[0]._source);
                            }
-
-                            
-                            
+                          else if(res.data.errNo==1000){
+                               Cookies.remove('token')
+                               this.$route.push('/login')
+                           }
+                                                       
                     }).catch((err)=>{
                         this.$Message.error(err.message);
                         console.log(err);

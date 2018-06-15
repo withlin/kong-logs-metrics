@@ -2,8 +2,8 @@ package middleware
 
 import (
 	"fmt"
-	"kong-logs-metrics/controller/common"
 	"kong-logs-metrics/model"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
@@ -11,10 +11,13 @@ import (
 //AuthUser 验证
 func AuthUser(c *gin.Context) {
 	var user model.User
-	SendErrJSON := common.SendErrJSON
 	tokenString := c.GetHeader("Access-Token")
 	if tokenString == "" {
-		SendErrJSON("未登录", c)
+		c.JSON(http.StatusOK, gin.H{
+			"errNo": model.ErrorCode.LoginError,
+			"msg":   "success",
+			"data":  "",
+		})
 		return
 	}
 
@@ -22,7 +25,11 @@ func AuthUser(c *gin.Context) {
 	user, err = model.UserFromRedis(tokenString)
 	fmt.Println(user)
 	if err != nil {
-		SendErrJSON("未登录", c)
+		c.JSON(http.StatusOK, gin.H{
+			"errNo": model.ErrorCode.LoginError,
+			"msg":   "success",
+			"data":  "",
+		})
 		return
 	}
 
