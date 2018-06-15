@@ -31,6 +31,7 @@ func ShowLogs(c *gin.Context) {
 				AuthQuery(ctx, query, c, page)
 
 			} else {
+				fmt.Println("非admin用户进来了=============================================")
 				phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
 				AuthQuery(ctx, phraseQuery, c, page)
 
@@ -46,30 +47,20 @@ func ShowLogs(c *gin.Context) {
 	}
 }
 
-//AuthQuery 根据不同角色查询
+//AuthQuery 根据不同的账号查询
 func AuthQuery(ctx context.Context, query elastic.Query, c *gin.Context, page *model.Page) {
 	SendErrJSON := common.SendErrJSON
-	logs := new(model.Logs)
+	// logs := new(model.Logs)
 	searchResult, err := common.ES.Search().Index(page.DateValue).Type(config.Conf.ElasticSearch.LogStashType).Query(query).From(page.PageNumber).Size(page.PageSize).Do(ctx)
 	if err != nil {
 		SendErrJSON("ES查询错误", c)
 		return
 	}
 
-	buf, err := json.Marshal(searchResult)
-	if err != nil {
-		SendErrJSON("error", c)
-		return
-
-	}
-	errCode := json.Unmarshal(buf, &logs)
-	if errCode != nil {
-		SendErrJSON("error", c)
-	}
 	c.JSON(http.StatusOK, gin.H{
 		"errNo": 1,
 		"msg":   "success",
-		"data":  logs.Hits,
+		"data":  searchResult.Hits,
 	})
 }
 
@@ -158,7 +149,6 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 			}
 
 		} else {
-			fmt.Println("==============只有AppId的查询进来了==========")
 			res, _ := common.ES.IndexExists(api.Data).Do(ctx)
 			if res {
 				boolQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", api.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)

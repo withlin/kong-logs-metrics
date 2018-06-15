@@ -82,25 +82,14 @@ export default {
                             this.$Message.success('登录成功');
                             this.$router.push('/apigw/performance-statistics');
                         }else{
-                            // this.$Message.error('登录失败，账户或者密码错误!');
                             this.$Message.error(res.data.msg);
                             this.$router.push('/login');
-                            this.$router.push('/apigw/performance-statistics');
                         }
                     }).catch((err)=>{
                         this.$Message.error(err.msg);
                         console.log(err);
                          this.$router.push('/login');
                     });
-
-                    // if (this.form.userName === 'iview_admin') {
-                    //     Cookies.set('access', 0);
-                    // } else {
-                    //     Cookies.set('access', 1);
-                    // }
-                    // this.$router.push({
-                    //     name: 'home_index'
-                    // });
                 }
             });
         }

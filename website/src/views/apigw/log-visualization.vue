@@ -75,6 +75,7 @@ export default {
     name: 'showlog',
     data () {
         return {
+            tokenString:Cookies.get('token'),
             appid:'',
             matchList:[],
             pageNumber:1,
@@ -240,9 +241,9 @@ export default {
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`,"appid":this.appid}
                     }
-                    Axios.post(server,data).then((res)=>{
-                           
-                           if(res.data.errNo=="ok"){
+                    Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
+                           console.log(res.data)
+                           if(res.data.msg=="success"){
                             
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {
@@ -266,6 +267,9 @@ export default {
                                tableData=_.orderBy(tableData,['starttime'],['desc'])
                                this.data=tableData;
                                this.total=res.data.data.total;
+                           }else{
+                               this.$Message.error("当前操作超时，请重新登录");
+                                this.$router.push('/login');
                            }
 
                             
