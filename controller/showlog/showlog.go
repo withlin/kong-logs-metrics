@@ -24,21 +24,21 @@ func ShowLogs(c *gin.Context) {
 
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&page); err == nil {
-		if page.PageNumber > 0 && page.PageSize > 0 {
-			page.Appid = user.AppID
-			if user.Name == "admin" {
+		if ok, _ := common.ES.IndexExists(page.DateValue).Do(ctx); ok {
+			if page.PageNumber >= 0 && page.PageSize > 0 {
+				page.Appid = user.AppID
+				if user.Name == "admin" {
 
-				AuthQuery(ctx, query, c, page)
+					AuthQuery(ctx, query, c, page)
 
-			} else {
-				fmt.Println("非admin用户进来了=============================================")
-				phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
-				AuthQuery(ctx, phraseQuery, c, page)
+				} else {
+					phraseQuery := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", page.Appid).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					AuthQuery(ctx, phraseQuery, c, page)
 
+				}
 			}
-
 		} else {
-			SendErrJSON("发生错误", c)
+			SendErrJSON("当前日期没有数据", c)
 		}
 	} else {
 		fmt.Println(err.Error())
@@ -58,7 +58,7 @@ func AuthQuery(ctx context.Context, query elastic.Query, c *gin.Context, page *m
 	}
 
 	c.JSON(http.StatusOK, gin.H{
-		"errNo": 1,
+		"errNo": model.ErrorCode.SUCCESS,
 		"msg":   "success",
 		"data":  searchResult.Hits,
 	})

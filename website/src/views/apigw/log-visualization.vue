@@ -243,7 +243,7 @@ export default {
                     }
                     Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
                            console.log(res.data)
-                           if(res.data.msg=="success"){
+                           if(res.data.errNo==0){
                             
                                console.log(res.data.data);
                                res.data.data.hits.forEach(element => {
@@ -268,8 +268,9 @@ export default {
                                this.data=tableData;
                                this.total=res.data.data.total;
                            }else{
-                               this.$Message.error("当前操作超时，请重新登录");
-                                this.$router.push('/login');
+                               this.$Message.error(res.data.msg);
+                               Cookies.remove('token')
+                               this.$route.push('/login')
                            }
 
                             
