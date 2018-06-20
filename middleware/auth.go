@@ -18,7 +18,9 @@ func AuthUser(c *gin.Context) {
 			"msg":   "success",
 			"data":  "",
 		})
+		c.Abort()
 		return
+
 	}
 
 	var err error
@@ -30,6 +32,7 @@ func AuthUser(c *gin.Context) {
 			"msg":   "success",
 			"data":  "",
 		})
+		c.Abort()
 		return
 	}
 

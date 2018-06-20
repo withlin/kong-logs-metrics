@@ -80,7 +80,7 @@ export default {
                         if(res.data.msg=="success"){
                             Cookies.set('token', res.data.data,{expires: 0.125});
                             this.$Message.success('登录成功');
-                            this.$router.push('/apigw/performance-statistics');
+                            this.$router.push('/home');
                         }else{
                             this.$Message.error(res.data.msg);
                             this.$router.push('/login');

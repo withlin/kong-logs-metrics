@@ -181,16 +181,13 @@ export default {
                     let tableData=[];
 
                     if(this.dateValue !="" && this.uri=="" && this.appid==""){
-                        console.log("==========if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${this.dateValue}`}
                         this.handleMethod(test);
                     }
                     else if(this.dateValue=="" || this.uri == "" && this.appid==""){
-                        console.log("==========else-if===========");
                         let  test={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${moment().format('YYYY.MM.DD')}`}
                         this.handleMethod(test);
                     }else{
-                        console.log("==========else===========");
                         let tokenString=Cookies.get("token")
                         Axios.post(server,data,{headers: {"Access-Token": tokenString}}).then((res)=>{
                            if(res.data.errNo==0){
@@ -246,14 +243,8 @@ export default {
                     if (data===undefined) {
                         data={"pagesize":200,"pagenumber":1,"datevalue":`logstash-${dateTimeNow}`,"appid":this.appid}
                     }
-                    console.log("==============================")
-                    console.log(data)
-                    console.log("==============================")
                     Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
-                        //    console.log(res.data)
                            if(res.data.errNo==0){
-                            
-
                                res.data.data.hits.forEach(element => {
                                    let date=new Date(element._source.started_at);
                                    tableData.push({
@@ -323,10 +314,12 @@ export default {
             let server=Api.QueryUrlName;
             let apis=[]
             let data={"logstastname":`logstash-${this.dateValue}`}
-            Axios.post(server,data).then((res)=>{
+            Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
+                        console.log("=============queryUrlName=================");
                         console.log(res.data);
+                        console.log("==============queryUrlName================");
 
-                          if(res.data.message=="ok"){
+                          if(res.data.errNo==0){
                               for (let index = 0; index < res.data.data.length; index++) {
                                  apis.push({
                                      value:res.data.data[index].key,
@@ -335,7 +328,11 @@ export default {
                                   
                               }
                               this.apiList=apis;
-                          }else{
+                          }else if(res.data.errNo==1000){
+                              Cookies.remove('token');
+                               this.$router.push('/login');
+                          }
+                          else{
                               console.log(res.data.data);
                               this.$Notice.warning({
                                          duration:6,
@@ -364,12 +361,12 @@ export default {
             let server=Api.FindMatchid;
             let data={"logstastname":`logstash-${this.dateValue}`};
             let apis=[];
-             Axios.post(server,data).then((res)=>{
+             Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
                         console.log("=========================");
                         console.log(res.data);
                         console.log("=========================");
 
-                          if(res.data.message=="ok"){
+                          if(res.data.errNo==0){
                               for (let index = 0; index < res.data.data.length; index++) {
                                  apis.push({
                                      value:res.data.data[index].key,
@@ -378,7 +375,11 @@ export default {
                                   
                               }
                               this.matchList=apis;
-                          }else{
+                          }else if(res.data.errNo==1000){
+                              Cookies.remove('token');
+                               this.$router.push('/login');
+                          }
+                          else{
                               console.log(res.data.data);
                               this.$Notice.warning({
                                          duration:6,

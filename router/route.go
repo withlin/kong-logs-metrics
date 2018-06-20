@@ -18,12 +18,12 @@ func Route(router *gin.Engine) {
 	api := router.Group(apiPrefix)
 	{
 		api.POST("/findaggmetrics", middleware.AuthUser, agg.FindAggMetrics)
-		api.POST("/piechart", agg.PieChar)
-		api.POST("/test/queryurlname", agg.QueryURLName)
+		api.POST("/piechart", middleware.AuthUser, agg.PieChar)
+		api.POST("/test/queryurlname", middleware.AuthUser, agg.QueryURLName)
 		api.POST("/checklogin", login.PostCheckLogin)
 		api.POST("/showlogs", middleware.AuthUser, showlog.ShowLogs)
-		api.POST("/findlogdetailbyid", showlog.FindLogDetailByID)
-		api.POST("/findlogsbyapiname", showlog.FindLogByAPINameAndDate)
-		api.POST("findmatchid", agg.MatchID)
+		api.POST("/findlogdetailbyid", middleware.AuthUser, showlog.FindLogDetailByID)
+		api.POST("/findlogsbyapiname", middleware.AuthUser, showlog.FindLogByAPINameAndDate)
+		api.POST("findmatchid", middleware.AuthUser, agg.MatchID)
 	}
 }

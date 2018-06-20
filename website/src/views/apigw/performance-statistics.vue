@@ -306,10 +306,11 @@ export default {
             let server=Api.QueryUrlName;
             let apis=[]
             let data={"logstastname":`logstash-${this.dateValue}`}
-            Axios.post(server,data).then((res)=>{
+            let tokenString=Cookies.get("token")
+            Axios.post(server,data,{headers: {"Access-Token": tokenString}}).then((res)=>{
                         console.log(res.data);
 
-                          if(res.data.message=="ok"){
+                          if(res.data.errNo==0){
                               for (let index = 0; index < res.data.data.length; index++) {
                                  apis.push({
                                      value:res.data.data[index].key,
@@ -318,7 +319,11 @@ export default {
                                   
                               }
                               this.apiList=apis;
-                          }else{
+                          }else if(res.data.errNo==1000){
+                              Cookies.remove('token');
+                               this.$router.push('/login');
+                          }
+                          else{
                               console.log(res.data.data);
                               this.$Notice.warning({
                                          duration:6,

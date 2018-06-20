@@ -3,7 +3,6 @@ package agg
 import (
 	"context"
 	"encoding/json"
-	"fmt"
 	"net/http"
 	"strconv"
 	"time"
@@ -282,11 +281,14 @@ func PieChar(c *gin.Context) {
 
 //QueryURLName 查询请求的API名称
 func QueryURLName(c *gin.Context) {
-	wapperQuery("upstream_uri.keyword", c)
+	userInter, _ := c.Get("user")
+	user := userInter.(model.User)
+	wapperQuery("upstream_uri.keyword", c, user)
 }
 
-func wapperQuery(keyword string, c *gin.Context) {
+func wapperQuery(keyword string, c *gin.Context, user model.User) {
 	url := new(model.URL)
+
 	logstashname := new(model.DateValue)
 	SendErrJSON := common.SendErrJSON
 	ctx := context.Background()
@@ -297,35 +299,40 @@ func wapperQuery(keyword string, c *gin.Context) {
 			res, _ := common.ES.IndexExists(logstashname.LogstashName).Do(ctx)
 
 			if res {
-				fmt.Println("keyword:" + keyword)
-				termAgg := elastic.NewTermsAggregation().Field(keyword)
+				var result []byte
+				if user.Name == "admin" {
+					var err error
+					termAgg := elastic.NewTermsAggregation().Field(keyword)
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
-				searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
 
-				fmt.Println("=====================")
-				fmt.Println(searchResult)
-				fmt.Println("=====================")
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				}
 
-				if err != nil {
+				errCode := json.Unmarshal(result, &url)
+				if errCode != nil {
 					SendErrJSON("error", c)
-					return
 				}
-
-				da, err := json.Marshal(searchResult)
-				if err != nil {
-					SendErrJSON("error", c)
-					return
-				}
-
-				err1 := json.Unmarshal(da, &url)
-				if err1 != nil {
-					//doSometing
-					c.JSON(http.StatusOK, gin.H{"message": "false", "err": err1.Error()})
-				}
-
-				c.JSON(http.StatusOK, gin.H{"message": "ok", "data": url.Aggregations.TermAgg.Buckets})
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.SUCCESS,
+					"msg":   "success",
+					"data":  url.Aggregations.TermAgg.Buckets,
+				})
 			} else {
-				c.JSON(http.StatusOK, gin.H{"message": "false", "data": "当前日期没有数据，请选择其他日期"})
+
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.ERROR,
+					"msg":   "error",
+					"data":  "当前日期没有数据，请选择其他日期",
+				})
 			}
 
 		}
@@ -338,6 +345,8 @@ func wapperQuery(keyword string, c *gin.Context) {
 
 //MatchID 查询matchid并且去重
 func MatchID(c *gin.Context) {
-	wapperQuery("request.headers.appid.keyword", c)
+	userInter, _ := c.Get("user")
+	user := userInter.(model.User)
+	wapperQuery("request.headers.appid.keyword", c, user)
 
 }
