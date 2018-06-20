@@ -116,6 +116,8 @@ func FindLogByAPINameAndDate(c *gin.Context) {
 
 	api := new(model.API)
 	logs := new(model.Logs)
+	// userInter, _ := c.Get("user")
+	// user := userInter.(model.User)
 	SendErrJSON := common.SendErrJSON
 	ctx := context.Background()
 	if err := c.ShouldBindJSON(&api); err == nil {

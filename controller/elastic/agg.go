@@ -283,7 +283,79 @@ func PieChar(c *gin.Context) {
 func QueryURLName(c *gin.Context) {
 	userInter, _ := c.Get("user")
 	user := userInter.(model.User)
-	wapperQuery("upstream_uri.keyword", c, user)
+	// wapperQuery("upstream_uri.keyword", c, user)
+	url := new(model.URL)
+
+	logstashname := new(model.DateValue)
+	SendErrJSON := common.SendErrJSON
+	ctx := context.Background()
+
+	if err := c.ShouldBindJSON(&logstashname); err == nil {
+
+		if logstashname.LogstashName != "" {
+			res, _ := common.ES.IndexExists(logstashname.LogstashName).Do(ctx)
+
+			if res {
+				var result []byte
+				if user.Name == "admin" {
+					var err error
+					termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				} else {
+					boolQueryMatch := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", user.AppID).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					boolQueryWrap := elastic.NewBoolQuery().Must(boolQueryMatch).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					filterQueryWrap := elastic.NewBoolQuery().Filter(boolQueryWrap).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+					termAgg := elastic.NewTermsAggregation().Field("upstream_uri.keyword")
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Query(filterQueryWrap).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				}
+
+				errCode := json.Unmarshal(result, &url)
+				if errCode != nil {
+					SendErrJSON("error", c)
+				}
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.SUCCESS,
+					"msg":   "success",
+					"data":  url.Aggregations.TermAgg.Buckets,
+				})
+			} else {
+
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.ERROR,
+					"msg":   "error",
+					"data":  "当前日期没有数据，请选择其他日期",
+				})
+			}
+
+		}
+
+	} else {
+		SendErrJSON("error", c)
+		return
+	}
 }
 
 func wapperQuery(keyword string, c *gin.Context, user model.User) {
@@ -304,6 +376,24 @@ func wapperQuery(keyword string, c *gin.Context, user model.User) {
 					var err error
 					termAgg := elastic.NewTermsAggregation().Field(keyword)
 					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				} else {
+					boolQueryMatch := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery(keyword, user.AppID).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					boolQueryWrap := elastic.NewBoolQuery().Must(boolQueryMatch).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					filterQueryWrap := elastic.NewBoolQuery().Filter(boolQueryWrap).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+					termAgg := elastic.NewTermsAggregation().Field(keyword)
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Query(filterQueryWrap).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
 
 					if err != nil {
 						SendErrJSON("error", c)
@@ -347,6 +437,77 @@ func wapperQuery(keyword string, c *gin.Context, user model.User) {
 func MatchID(c *gin.Context) {
 	userInter, _ := c.Get("user")
 	user := userInter.(model.User)
-	wapperQuery("request.headers.appid.keyword", c, user)
+	// wapperQuery("request.headers.appid.keyword", c, user)
+	url := new(model.URL)
+	keyword := "request.headers.appid.keyword"
+	logstashname := new(model.DateValue)
+	SendErrJSON := common.SendErrJSON
+	ctx := context.Background()
 
+	if err := c.ShouldBindJSON(&logstashname); err == nil {
+
+		if logstashname.LogstashName != "" {
+			res, _ := common.ES.IndexExists(logstashname.LogstashName).Do(ctx)
+
+			if res {
+				var result []byte
+				if user.Name == "admin" {
+					var err error
+					termAgg := elastic.NewTermsAggregation().Field(keyword)
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				} else {
+					boolQueryMatch := elastic.NewBoolQuery().Must(elastic.NewMatchPhraseQuery("request.headers.appid", user.AppID).Slop(0).Boost(1)).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					boolQueryWrap := elastic.NewBoolQuery().Must(boolQueryMatch).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+					filterQueryWrap := elastic.NewBoolQuery().Filter(boolQueryWrap).DisableCoord(false).AdjustPureNegative(true).Boost(1)
+
+					termAgg := elastic.NewTermsAggregation().Field(keyword)
+					searchResult, err := common.ES.Search().Index(logstashname.LogstashName).Type(config.Conf.ElasticSearch.LogStashType).Query(filterQueryWrap).Aggregation("termAgg", termAgg).Size(0).Do(ctx)
+
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+
+					result, err = json.Marshal(searchResult)
+					if err != nil {
+						SendErrJSON("error", c)
+						return
+					}
+				}
+
+				errCode := json.Unmarshal(result, &url)
+				if errCode != nil {
+					SendErrJSON("error", c)
+				}
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.SUCCESS,
+					"msg":   "success",
+					"data":  url.Aggregations.TermAgg.Buckets,
+				})
+			} else {
+
+				c.JSON(http.StatusOK, gin.H{
+					"errNo": model.ErrorCode.ERROR,
+					"msg":   "error",
+					"data":  "当前日期没有数据，请选择其他日期",
+				})
+			}
+
+		}
+
+	} else {
+		SendErrJSON("error", c)
+		return
+	}
 }

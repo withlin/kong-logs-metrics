@@ -289,7 +289,7 @@ export default {
                     let tableData=[];
                     let data={'ID':`${id}`,'indexname':indexName};
 
-                    Axios.post(server,data).then((res)=>{
+                    Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
                            if(res.data.errNo==0){
                              this.showlogsdetail=res.data.data.hits[0]._source;
                              console.log(res.data.data.hits[0]._source);
