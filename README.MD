@@ -69,16 +69,35 @@ vim config.yml
 配置说明
 
 elasticsearch:
-  host: http://192.168.199.17:9200/   //配置ES地址
-  setsniff: false                     //SetSniff 是否为false
-  logstashtype: logs                  //索引的类型
+  host: http://192.168.199.17:9200/   //ES地址
+  setsniff: false  
+  logstashtype: logs                  //索引类型
 
 go:
-  apiprefix: /v1/api                   //API前缀（分组）
-  port: 7777                           //端口
-  tokenmaxage: 7200                    
-  env: production                      // /*模式(开发(development)，测试(test)，产品(production)*/
-  logdir: 
+  apiprefix: /v1/api                 //api 分组
+  port: 7777                        //端口
+  tokenmaxage: 10800                //Token过期时间
+  env: development                  //开发环境
+  logdir:                           //日志文件夹
+  tokensecret: AstrRAflaEAA          //JWT的字符串
+
+mysql: 
+    dialect: mysql                  
+    database: test
+    user: root
+    passowrd: 000000
+    charset: utf8mb4
+    host: 192.168.199.16
+    port: 3306
+    maxidleconns: 5
+    maxopenconns: 10
+
+redis: 
+    host: 192.168.199.17
+    port: 6379
+    passowrd: zzzzzzz
+    maxIdle: 3
+    maxactive: 5
 
 //启动后台服务
 go run main.go
