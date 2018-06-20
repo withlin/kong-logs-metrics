@@ -2,25 +2,10 @@
 
 
 [[projects]]
-  branch = "master"
-  name = "github.com/DevWithLin/kong-logs-metrics"
-  packages = [
-    "config",
-    "controller/common",
-    "controller/elastic",
-    "controller/login",
-    "controller/showlog",
-    "model",
-    "router",
-    "utils"
-  ]
-  revision = "49650c7dc83b639d2bab1da04b38901aa4f75e76"
-
-[[projects]]
-  name = "github.com/gin-contrib/cors"
+  name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
-  revision = "cf4846e6a636a76237a28d9286f163c132e841bc"
-  version = "v1.2"
+  revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
+  version = "v3.2.0"
 
 [[projects]]
   name = "github.com/gin-gonic/gin"
@@ -31,6 +16,33 @@
   ]
   revision = "50e7e427300a7eeeb299a4cd5bc1ebfa04d48528"
   version = "v0.5"
+
+[[projects]]
+  name = "github.com/go-sql-driver/mysql"
+  packages = ["."]
+  revision = "a0583e0143b1624142adab07e0e97fe106d99561"
+  version = "v1.3.0"
+
+[[projects]]
+  name = "github.com/gomodule/redigo"
+  packages = [
+    "internal",
+    "redis"
+  ]
+  revision = "9c11da706d9b7902c6da69c592f75637793fe121"
+  version = "v2.0.0"
+
+[[projects]]
+  name = "github.com/jinzhu/gorm"
+  packages = ["."]
+  revision = "6ed508ec6a4ecb3531899a69cbc746ccf65a4166"
+  version = "v1.9.1"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/jinzhu/inflection"
+  packages = ["."]
+  revision = "04140366298a54a039076d798123ffa108fff46c"
 
 [[projects]]
   name = "github.com/julienschmidt/httprouter"
@@ -74,6 +86,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "256795a7a320968d281a204680a264349f2021c49417a54d97de17924219920e"
+  inputs-digest = "8f7eac8b89f12da43d22f5ca21631d79e8623a8fa8985166b44f85bb876ffe4b"
   solver-name = "gps-cdcl"
   solver-version = 1
