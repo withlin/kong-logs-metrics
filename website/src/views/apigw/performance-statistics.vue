@@ -352,7 +352,9 @@ export default {
                     }else{
                          data={"logstastname":`logstash-${this.dateValue}`,"name":this.model1}
                     }
-                    Axios.post(server,data).then((res)=>{
+                   
+                    let tokenString=Cookies.get("token")
+                    Axios.post(server,data, {headers: {"Access-Token": tokenString}}).then((res)=>{
                            if(res.data.message=="ok")
                             rangechart.setOption({
                                  series : [

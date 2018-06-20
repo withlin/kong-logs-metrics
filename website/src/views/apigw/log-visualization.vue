@@ -315,10 +315,6 @@ export default {
             let apis=[]
             let data={"logstastname":`logstash-${this.dateValue}`}
             Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
-                        console.log("=============queryUrlName=================");
-                        console.log(res.data);
-                        console.log("==============queryUrlName================");
-
                           if(res.data.errNo==0){
                               for (let index = 0; index < res.data.data.length; index++) {
                                  apis.push({
@@ -362,17 +358,12 @@ export default {
             let data={"logstastname":`logstash-${this.dateValue}`};
             let apis=[];
              Axios.post(server,data,{headers: {"Access-Token": this.tokenString}}).then((res)=>{
-                        console.log("=========================");
-                        console.log(res.data);
-                        console.log("=========================");
-
                           if(res.data.errNo==0){
                               for (let index = 0; index < res.data.data.length; index++) {
                                  apis.push({
                                      value:res.data.data[index].key,
                                      label:res.data.data[index].key
                                  })
-                                  
                               }
                               this.matchList=apis;
                           }else if(res.data.errNo==1000){
