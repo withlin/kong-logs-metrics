@@ -25,6 +25,6 @@ mysql:
 redis: 
     host: 192.168.199.17
     port: 6379
-    passowrd: zzzzzzz
+    passowrd: ddddd
     maxIdle: 3
     maxactive: 5
